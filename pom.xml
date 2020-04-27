@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>DiAna</groupId>
+    <artifactId>DiAna</artifactId>
+    <version>1.48-SNAPSHOT</version>
+    <name>DiAna</name>
+        <description>An ImageJ tool for object-based 3D co-localization and distance analysis.</description>
+	<url>https://www.sciencedirect.com/science/article/pii/S1046202316304649?via%3Dihub</url>
+	<inceptionYear>2016</inceptionYear>
+    <organization>
+		<name>IBPS</name>
+		<url>http://www.ibps.upmc.fr/fr</url>
+    </organization>
+    <licenses>
+            <license>
+                    <name>Simplified BSD License</name>
+                    <distribution>repo</distribution>
+            </license>
+    </licenses>
+    <developers>
+            <developer>
+                    <id>JeffGilles</id>
+                    <name>Jean-François Gilles</name>
+                    <url>http://www.ibps.upmc.fr/fr/IBPS/annuaire/174-Jean-Fran%C3%A7ois-Gilles</url>
+                    <roles>
+                            <role>founder</role>
+                            <role>lead</role>
+                            <role>developer</role>
+                            <role>debugger</role>
+                            <role>reviewer</role>
+                            <role>support</role>
+                            <role>maintainer</role>
+                    </roles>
+            </developer>
+            <developer>
+                    <id>mcib3d</id>
+                    <name>Thomas Boudier</name>
+                    <url>https://github.com/mcib3d</url>
+                    <roles>
+                            <role>founder</role>
+                            <role>lead</role>
+                            <role>developer</role>
+                            <role>debugger</role>
+                            <role>reviewer</role>
+                            <role>support</role>
+                            <role>maintainer</role>
+                    </roles>
+            </developer>
+    </developers>
+    <contributors>
+            <contributor>
+                    <name>Jean-François Gilles</name>
+                    <url>http://www.ibps.upmc.fr/fr/IBPS/annuaire/174-Jean-Fran%C3%A7ois-Gilles</url>
+                    <roles><role>founder</role></roles>
+                    <properties><id>JeffGilles</id></properties>
+            </contributor>
+            <contributor>
+                    <name>Thomas Boudier</name>
+                    <url>https://github.com/mcib3d</url>
+                    <roles><role>founder</role></roles>
+                    <properties><id>mcib3d</id></properties>
+            </contributor>
+            <contributor>
+                    <name>Nicolas Chiaruttini</name>
+                    <url>http://biop.epfl.ch/INFO_Facility.html</url>
+                    <roles><role>maintainer</role></roles>
+                    <properties><id>NicoKiaru</id></properties>
+            </contributor>
+    </contributors>
+
+    <mailingLists>
+            <mailingList>
+                    <name>Image.sc Forum</name>
+                    <archive>https://forum.image.sc/</archive>
+            </mailingList>
+    </mailingLists>
+    <scm>
+            <connection>scm:git:git://github.com/</connection>
+            <developerConnection>scm:git:git@github.com:</developerConnection>
+            <tag>HEAD</tag>
+            <url>https://github.com/</url>
+    </scm>
+
+    <issueManagement>
+            <system>GitHub Issues</system>
+            <url></url>
+    </issueManagement>
+
+    <ciManagement>
+            <system>None</system>
+    </ciManagement>
+
+    <properties>
+            <package-name>fr.upmc.ibps.diana</package-name>
+            <main-class>fr.upmc.ibps.diana.DummyCommand</main-class>
+            <license.licenseName>bsd</license.licenseName>
+            <license.copyrightOwners>N/A</license.copyrightOwners>
+    </properties>
+    
+    <repositories>
+            <repository>
+		<id>imagej.public</id>
+		<url>http://maven.imagej.net/content/groups/public</url>
+            </repository>
+            <repository>
+                <id>jitpack.io</id>
+                <url>https://jitpack.io</url>
+            </repository>
+    </repositories>
+        
+    <packaging>jar</packaging>
+    <dependencies>
+            <dependency>
+                    <groupId>net.imagej</groupId>
+                    <artifactId>ij</artifactId>
+                    <version>1.52u</version>
+                    <type>jar</type>
+            </dependency>
+        <dependency>
+            <groupId>com.github.mcib3d</groupId>
+            <artifactId>mcib3d-core</artifactId>
+            <version>master-b315ac14d8-1</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+    
+</project>
