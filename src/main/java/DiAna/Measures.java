@@ -8,9 +8,7 @@ package DiAna;
 import ij.IJ;
 import ij.gui.Roi;
 import ij.measure.ResultsTable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.LinkedList;
 import mcib3d.geom.Object3D;
@@ -18,7 +16,6 @@ import mcib3d.geom.Object3DVoxels;
 import mcib3d.geom.Objects3DPopulation;
 import mcib3d.geom.Voxel3D;
 import mcib3d.image3d.ImageHandler;
-import mcib3d.image3d.ImageInt;
 import mcib3d.spatial.analysis.SpatialStatistics;
 import mcib3d.spatial.descriptors.SpatialDescriptor;
 import mcib3d.spatial.sampler.SpatialShuffle;
@@ -63,6 +60,7 @@ public class Measures {
         }
     };
     
+    
     /**
    * Select only the objects 2 which are touching when population 1 and 2 are in contact.
    * @param objPop1 
@@ -71,7 +69,7 @@ public class Measures {
    * @return 
    */
     public static Objects3DPopulation touchingPop (Objects3DPopulation objPop1, Objects3DPopulation objPop2, ImageHandler iHand2){
-        ArrayList<Object3D> touch = new ArrayList<Object3D> ();
+        ArrayList<Object3D> touch = new ArrayList<> ();
         for(int i=0; i<objPop1.getNbObjects();i++){
             Object3D ob1 = objPop1.getObject(i);
             //ArrayList<Voxel3D> vox = ob1.listVoxels(iHand2);//ih  //old version
@@ -111,13 +109,13 @@ public class Measures {
 //        touchA=touchingPop(popB, popA, iHA);
 //        touchB=touchingPop(popA, popB, iHB);
 //        IJ.log("measurTouchA="+touchA.getNbObjects()+"measurTouchB="+touchB.getNbObjects());
-        ArrayList<Object3D> bTouch = new ArrayList<Object3D> ();
-        ArrayList<Object3D> aTouch = new ArrayList<Object3D> ();
+        ArrayList<Object3D> bTouch = new ArrayList<> ();
+        ArrayList<Object3D> aTouch = new ArrayList<> ();
         ResultsTable rtColoc = new ResultsTable();
         int a = 1;
         
-        Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        //Calendar cal = Calendar.getInstance();
+        //SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         for(int i=0; i<touchA.getNbObjects();i++){          //scan of the objects touchPopA
             Object3D obA = touchA.getObject(i);
 //            ArrayList<Voxel3D> vox = obA.listVoxels(iHB);
@@ -300,24 +298,6 @@ public class Measures {
         return rt;
     }
     
-    /**
-     * Return the mask from ImageStack stack
-     * @param hand  image with 0 and 1 values
-     * @param fullImage true=mask on fullImage
-     * @return 
-     */
-    public static Object3D getmask(ImageHandler hand, boolean fullImage){
-        ImageHandler ih=hand;
-        Objects3DPopulation shuffleMask = new Objects3DPopulation();
-        if(fullImage==true){
-            ih.fill(1);
-        }
-        ImageInt imInt=ImageInt.wrap(ih.getImageStack());
-        
-        shuffleMask.addImage(imInt, 1);     //PB!!
-        Object3D mask=shuffleMask.getObject(0);    //one object
-        return mask;
-    }
     
     /**
      * Perform the shuffle
@@ -326,24 +306,24 @@ public class Measures {
      * @param popB 
      */
     public static void computeShuffle (Object3D mask, Objects3DPopulation popA, Objects3DPopulation popB){
-        Objects3DPopulation observed = popA;
-        observed.setMask(mask);
-        SpatialShuffle shuffle = new SpatialShuffle(observed);
-            //coloc
-            SpatialDescriptor colocalisation = new Coloc_Center_Function(popB);
-            int numRandomSamples = 100;
-            SpatialStatistics stat = new SpatialStatistics(colocalisation, shuffle, numRandomSamples, observed);
-            stat.setEnvelope(0.05); // 0.1 = envelope error 5 %-95%, 0.05=2.5-97.5%
-            stat.getPlot().show();
-            if((stat.getSdi()<=0.025) || (stat.getSdi()>=0.975)){
-                IJ.log("The colocalisation is considered as statistically signifiant  p= " + stat.getSdi());
-                IJ.log("The experimental data (blue curve) fall outside the confidence intervals of the random data (green curves)");
-            }
-            else{
-                IJ.log("The colocalisation is not considered as statistically signifiant p= " + stat.getSdi());
-                IJ.log("The experimental data (blue curve) fall inside the confidence intervals of the random data (green curves)");
-            }
         
+        popA.setMask(mask);
+        SpatialShuffle shuffle = new SpatialShuffle(popA);
+        //coloc
+        SpatialDescriptor colocalisation = new Coloc_Center_Function(popB);
+        int numRandomSamples = 100;
+        SpatialStatistics stat = new SpatialStatistics(colocalisation, shuffle, numRandomSamples, popA);
+        stat.setEnvelope(0.05); // 0.1 = envelope error 5 %-95%, 0.05=2.5-97.5%
+        stat.getPlot().show();
+        if((stat.getSdi()<=0.025) || (stat.getSdi()>=0.975)){
+            IJ.log("The colocalisation is considered as statistically signifiant  p= " + stat.getSdi());
+            IJ.log("The experimental data (blue curve) fall outside the confidence intervals of the random data (green curves)");
+        }
+        else{
+            IJ.log("The colocalisation is not considered as statistically signifiant p= " + stat.getSdi());
+            IJ.log("The experimental data (blue curve) fall inside the confidence intervals of the random data (green curves)");
+        }
+
     }
     
     

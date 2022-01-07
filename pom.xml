@@ -14,7 +14,7 @@
 
 	<groupId>fr.upmc.ibps</groupId>
 	<artifactId>DiAnA</artifactId>
-	<version>1.48_SNAPSHOT</version>
+	<version>1.49_SNAPSHOT</version>
 
 	<name>DiAna</name>
 	<description>An ImageJ tool for object-based 3D co-localization and distance analysis.</description>
@@ -35,7 +35,7 @@
 		<developer>
 			<id>JeffGilles</id>
 			<name>Jean-François Gilles</name>
-			<url>http://www.ibps.upmc.fr/fr/IBPS/annuaire/174-Jean-Fran%C3%A7ois-Gilles</url>
+			<url>http://www.ibps.upmc.fr/fr/IBPS/annuaire/174-Jean-Francois-Gilles</url>
 			<roles>
 				<role>founder</role>
 				<role>lead</role>
@@ -64,7 +64,7 @@
 	<contributors>
 		<contributor>
 			<name>Jean-François Gilles</name>
-			<url>http://www.ibps.upmc.fr/fr/IBPS/annuaire/174-Jean-Fran%C3%A7ois-Gilles</url>
+			<url>http://www.ibps.upmc.fr/fr/IBPS/annuaire/174-Jean-Francois-Gilles</url>
 			<roles><role>founder</role></roles>
 			<properties><id>JeffGilles</id></properties>
 		</contributor>
@@ -133,6 +133,12 @@
 			<artifactId>mcib3d-core</artifactId>
 			<version>master-47119b6729-1</version>
 		</dependency>
+	 <dependency>
+	  <groupId>net.imagej</groupId>
+	  <artifactId>ij</artifactId>
+	  <version>1.53i</version>
+	  <type>jar</type>
+	 </dependency>
 	</dependencies>
 </project>
 

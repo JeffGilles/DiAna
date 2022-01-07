@@ -913,7 +913,7 @@
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Ubuntu" size="12" style="0"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="Distance from objects in A :"/>
+                    <Property name="text" type="java.lang.String" value="Distance from objects in A:"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="colocCC">
@@ -1166,7 +1166,7 @@
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                       <Font name="Ubuntu" size="12" style="0"/>
                     </Property>
-                    <Property name="text" type="java.lang.String" value="Distance from objects in A :"/>
+                    <Property name="text" type="java.lang.String" value="Distance from objects in A:"/>
                   </Properties>
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="proxyCC">
@@ -1279,33 +1279,40 @@
               <Layout>
                 <DimensionLayout dim="0">
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" attributes="0">
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Group type="103" groupAlignment="0" attributes="0">
-                                      <Component id="shuffleLab1" alignment="0" min="-2" max="-2" attributes="0"/>
-                                      <Component id="shufflebounds1" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="shuffleLab1" alignment="0" min="-2" max="-2" attributes="0"/>
+                                          <Component id="shufflebounds1" alignment="0" min="-2" max="-2" attributes="0"/>
+                                      </Group>
+                                      <EmptySpace min="-2" pref="65" max="-2" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" attributes="0">
+                                          <Component id="shufflebounds2" min="-2" max="-2" attributes="0"/>
+                                          <Component id="maskPop" min="-2" max="-2" attributes="0"/>
+                                      </Group>
                                   </Group>
-                                  <EmptySpace min="-2" pref="109" max="-2" attributes="0"/>
-                                  <Component id="shufflebounds2" min="-2" max="-2" attributes="0"/>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <EmptySpace min="-2" pref="186" max="-2" attributes="0"/>
+                                      <Component id="analyseShuffle" min="-2" pref="80" max="-2" attributes="0"/>
+                                  </Group>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <EmptySpace min="-2" pref="100" max="-2" attributes="0"/>
+                                      <Component id="imageBoundRefLab" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="imgBoundRef1" min="-2" pref="220" max="-2" attributes="0"/>
+                                  </Group>
                               </Group>
-                              <Group type="102" attributes="0">
-                                  <EmptySpace min="-2" pref="112" max="-2" attributes="0"/>
-                                  <Component id="imageBoundRefLab" min="-2" max="-2" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="imgBoundRef1" min="-2" pref="194" max="-2" attributes="0"/>
-                              </Group>
-                              <Group type="102" alignment="0" attributes="0">
-                                  <EmptySpace min="-2" pref="186" max="-2" attributes="0"/>
-                                  <Component id="analyseShuffle" min="-2" pref="80" max="-2" attributes="0"/>
-                              </Group>
-                              <Group type="102" alignment="0" attributes="0">
+                              <Group type="102" alignment="1" attributes="0">
                                   <EmptySpace max="-2" attributes="0"/>
                                   <Component id="labelShuffle" min="-2" max="-2" attributes="0"/>
+                                  <EmptySpace max="32767" attributes="0"/>
+                                  <Component id="betterFilterLab" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <EmptySpace max="32767" attributes="0"/>
+                          <EmptySpace pref="19" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                 </DimensionLayout>
@@ -1313,9 +1320,15 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" alignment="0" attributes="0">
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="labelShuffle" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                          <Component id="shuffleLab1" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="labelShuffle" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="betterFilterLab" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="3" attributes="0">
+                              <Component id="shuffleLab1" alignment="3" min="-2" max="-2" attributes="0"/>
+                              <Component id="maskPop" alignment="3" min="-2" max="-2" attributes="0"/>
+                          </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="3" attributes="0">
                               <Component id="shufflebounds1" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -1414,6 +1427,34 @@
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="analyseShuffleActionPerformed"/>
                   </Events>
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="maskPop">
+                  <Properties>
+                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                      <Font name="Ubuntu" size="12" style="0"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" value="Select only objects within the mask"/>
+                    <Property name="toolTipText" type="java.lang.String" value="Exclude the objects out of the mask for the shuffle"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="maskPopStateChanged"/>
+                  </Events>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="maskPop.setSelected(false);"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JCheckBox(&quot;Edge-Edge&quot;, proxyEEbool)"/>
+                  </AuxValues>
+                </Component>
+                <Component class="javax.swing.JLabel" name="betterFilterLab">
+                  <Properties>
+                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="0" green="0" red="ff" type="rgb"/>
+                    </Property>
+                    <Property name="text" type="java.lang.String" value="It&apos;s better done before running the plugin"/>
+                    <Property name="toolTipText" type="java.lang.String" value="because colocalisation analysis and shuffle can be different"/>
+                  </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="betterFilterLab.setVisible(false);"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>

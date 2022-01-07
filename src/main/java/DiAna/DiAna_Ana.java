@@ -40,16 +40,6 @@ import mcib3d.image3d.ImageInt;
  */
 public class DiAna_Ana implements PlugIn {
     
-    
-//    public static ImagePlus getImagePlus (Objects3DPopulation objPop1, ImageStack imS){        
-//        ImageStack iS = new ImageStack(imS.getWidth(), imS.getHeight(), imS.getSize());
-//        for(int i =0; i<objPop1.getNbObjects(); i++){
-//            objPop1.getObject(i).draw(iS, (i+1));
-//        }
-//        ImagePlus imageP = new ImagePlus("Returned image", iS);
-//        return imageP;
-//    }
-    
     /**
      * Select only the objects 2 which are touching when population 1 and 2 are in contact.
      * @param objPop1 
@@ -61,7 +51,7 @@ public class DiAna_Ana implements PlugIn {
     public static Objects3DPopulation touchingPop (Objects3DPopulation objPop1, Objects3DPopulation objPop2, ImagePlus im2, boolean delete){
         ImageStack iStack2 = im2.getImageStack();
         Objects3DPopulation pop = new Objects3DPopulation(ImageInt.wrap(im2));
-        ArrayList<Object3D> bTouch = new ArrayList<Object3D> ();
+        ArrayList<Object3D> bTouch = new ArrayList<> ();
         ImageHandler iHand = ImageHandler.wrap(iStack2);
         for(int i=0; i<objPop1.getNbObjects();i++){
             Object3D obA = objPop1.getObject(i);
@@ -94,7 +84,7 @@ public class DiAna_Ana implements PlugIn {
     
     
     /**
-     * draw the population to the ImageHandler
+     * Draw the population to the ImageHandler
      * @param objpop
      * @param ihand
      */
@@ -115,7 +105,7 @@ public class DiAna_Ana implements PlugIn {
     public static Objects3DPopulation nottouchingPop (Objects3DPopulation objPop1, Objects3DPopulation objPop2, ImagePlus im2){
         ImageStack iStack2 = im2.getImageStack();
         Objects3DPopulation pop = new Objects3DPopulation(ImageInt.wrap(im2));
-        ArrayList<Object3D> notTouch = new ArrayList<Object3D> ();
+        ArrayList<Object3D> notTouch = new ArrayList<> ();
         ImageHandler iHand = ImageHandler.wrap(iStack2);
         for(int i=0; i<objPop1.getNbObjects();i++){
             Object3D obA = objPop1.getObject(i);
@@ -166,25 +156,56 @@ public class DiAna_Ana implements PlugIn {
      * @param fullImage true=mask on fullImage
      * @return 
      */
+    @Deprecated
     public static Object3D getmask(ImageStack stack, boolean fullImage){
         Objects3DPopulation shuffleMask = new Objects3DPopulation();
         //Create the mask
-        ImagePlus imP = new ImagePlus("stack", stack);
+        //ImagePlus imP = new ImagePlus("stack", stack);
+        
         if(fullImage==true){
-            imP.getProcessor().setValue(1);
-            for(int z=1; z<=stack.getSize(); z++){
-                imP.setSlice(z);
-                imP.getProcessor().fill();
-            }
+            shuffleMask.addImage(ImageHandler.wrap(stack), 0);
+            ImageHandler ih = ImageHandler.wrap(stack);
+            ih.fill(1, 0, 65535);
+            shuffleMask.addImage(ih, 0);
+//            imP.getProcessor().setValue(1);
+//            for(int z=1; z<=stack.getSize(); z++){
+//                imP.setSlice(z);
+//                imP.getProcessor().fill();
+//            }
         }
         else{
-            imP.setStack(stack);
+            shuffleMask.addImage(ImageHandler.wrap(stack), 1);
+            //imP.setStack(stack);
+            
         }
-        imP.updateAndDraw();
-        shuffleMask.addImage(imP);
+        //imP.updateAndDraw();
+        //shuffleMask.addImage(imP);
 //        shuffleMask.addImage(ImageInt.wrap(imP), 1);//PB
         Object3D mask=shuffleMask.getObject(0);    //one object
-        imP.close();
+        
+        //imP.close();
+        return mask;
+    }
+    
+    /**
+     * Return the mask from ImageHandler hand
+     * @param hand  image
+     * @param fullImage true=mask on fullImage
+     * @return 
+     */
+    public static Object3D getmask(ImageHandler hand, boolean fullImage){
+        
+        Objects3DPopulation shuffleMask = new Objects3DPopulation();
+        if(fullImage==true){
+            ImageHandler ih = hand.createSameDimensions();
+            
+            ih.fill(1, 0, 65535);
+            shuffleMask.addImage(ih, 0);
+        }
+        else{
+            shuffleMask.addImage(hand, 1);
+        }
+        Object3D mask = shuffleMask.getObject(0);    //one object
         return mask;
     }
     

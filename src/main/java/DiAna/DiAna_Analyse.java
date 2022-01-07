@@ -44,6 +44,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
@@ -69,7 +70,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
     ImageStack isA, isB, isA2, isB2;
     ImageProcessor ipA, ipB, ipA2, ipB2;
     ImageHandler iHandA, iHandB, iHA, iHB;
-    Objects3DPopulation objPopA, objPopB, currPopA, currPopB, touchPopA, touchPopB;
+    Objects3DPopulation objPopA, objPopB, currPopA, currPopB, touchPopA, touchPopB;//, shuffPopA;
     Object3D mask;
     Calibration cali;
     
@@ -181,18 +182,18 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
             meas.computeColoc(true, true, true, true, true, true, surfcontactbool, distC);
             ImageHandler ColocHandler = meas.getImageColoc();
             ColocHandler.setMinAndMax((float)0, (float)ColocHandler.getMax());
-
+            ColocHandler.setScale(iHA);
             //Calibration cal = img1.getCalibration();//calibration
-            ColocHandler.setCalibration(cali);
+            //ColocHandler.setCalibration(cali);
             ColocHandler.set332RGBLut();
             ColocHandler.show();
         }
         if(adjaBool){
-            meas.ComputeAdjacency(numClo, true, true, true, true, surfcontactboolAdj, distA);
+            meas.ComputeAdjacency(numClo, true, false, false, false, surfcontactboolAdj, distA);
         }
         if(measureBool){
-            ResultsTable resultsA = Measures.measureResult(iHandA, popA, "ObjA-", true, true, true, true,true, true, true, true, true);
-            ResultsTable resultsB = Measures.measureResult(iHandB, popB, "ObjB-", true, true, true, true,true, true, true, true, true);
+            ResultsTable resultsA = Measures.measureResult(iHandA, popA, "ObjA-", true, true, false, true,true, true, true, false, true);
+            ResultsTable resultsB = Measures.measureResult(iHandB, popB, "ObjB-", true, true, false, true,true, true, true, false, true);
             resultsA.show("ObjectsMeasuresResults-A");
             resultsB.show("ObjectsMeasuresResults-B");
         }
@@ -206,7 +207,8 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
             else {
                 mask = DiAna_Ana.getmask(iHA.getImageStack(), true);
             }
-            Measures.computeShuffle(mask, popA, popB);
+            Objects3DPopulation shufA= new Objects3DPopulation(imInt1);
+            Measures.computeShuffle(mask, shufA, popB);
         }
     }
     
@@ -217,7 +219,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
      */
     public void macroInterpreter(String arg){
         int start, end;
-        colocBool=arg.contains("coloc");
+        colocBool=arg.contains(" coloc ");
         surfcontactbool=arg.contains("distc");
         adjaBool=arg.contains("adja");
         surfcontactboolAdj=arg.contains("dista");
@@ -441,6 +443,8 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
         imageBoundRefLab = new javax.swing.JLabel();
         imgBoundRef1 = new javax.swing.JComboBox();
         analyseShuffle = new javax.swing.JButton();
+        maskPop = new javax.swing.JCheckBox("Edge-Edge", proxyEEbool);
+        betterFilterLab = new javax.swing.JLabel();
         measurePanel1 = new javax.swing.JPanel();
         volume = new javax.swing.JCheckBox("Volume", volumebool);
         mean = new javax.swing.JCheckBox("Mean", meanbool);
@@ -792,7 +796,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
         colocFromAB.setToolTipText("Measure the percentage of the colocalisation part with the objects in A and B.");
 
         disColocLabA.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
-        disColocLabA.setText("Distance from objects in A :");
+        disColocLabA.setText("Distance from objects in A:");
 
         colocCC.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
         colocCC.setText("Center-Center");
@@ -941,7 +945,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
         closestLabel2.setToolTipText("Measure distance for the N closest objects in B for each object in image A (center-center)");
 
         disProxyLabA1.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
-        disProxyLabA1.setText("Distance from objects in A :");
+        disProxyLabA1.setText("Distance from objects in A:");
 
         proxyCC.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
         proxyCC.setText("Center-Center");
@@ -1096,39 +1100,61 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
             }
         });
 
+        maskPop.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
+        maskPop.setText("Select only objects within the mask");
+        maskPop.setToolTipText("Exclude the objects out of the mask for the shuffle");
+        maskPop.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                maskPopStateChanged(evt);
+            }
+        });
+
+        betterFilterLab.setForeground(new java.awt.Color(255, 0, 0));
+        betterFilterLab.setText("It's better done before running the plugin");
+        betterFilterLab.setToolTipText("because colocalisation analysis and shuffle can be different");
+
         javax.swing.GroupLayout shufflePanelLayout = new javax.swing.GroupLayout(shufflePanel);
         shufflePanel.setLayout(shufflePanelLayout);
         shufflePanelLayout.setHorizontalGroup(
             shufflePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(shufflePanelLayout.createSequentialGroup()
-                .addGroup(shufflePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(shufflePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(shufflePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, shufflePanelLayout.createSequentialGroup()
+                            .addContainerGap()
+                            .addGroup(shufflePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(shuffleLab1)
+                                .addComponent(shufflebounds1))
+                            .addGap(65, 65, 65)
+                            .addGroup(shufflePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(shufflebounds2)
+                                .addComponent(maskPop)))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, shufflePanelLayout.createSequentialGroup()
+                            .addGap(186, 186, 186)
+                            .addComponent(analyseShuffle, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, shufflePanelLayout.createSequentialGroup()
+                            .addGap(100, 100, 100)
+                            .addComponent(imageBoundRefLab)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(imgBoundRef1, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(shufflePanelLayout.createSequentialGroup()
                         .addContainerGap()
-                        .addGroup(shufflePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(shuffleLab1)
-                            .addComponent(shufflebounds1))
-                        .addGap(109, 109, 109)
-                        .addComponent(shufflebounds2))
-                    .addGroup(shufflePanelLayout.createSequentialGroup()
-                        .addGap(112, 112, 112)
-                        .addComponent(imageBoundRefLab)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(imgBoundRef1, javax.swing.GroupLayout.PREFERRED_SIZE, 194, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(shufflePanelLayout.createSequentialGroup()
-                        .addGap(186, 186, 186)
-                        .addComponent(analyseShuffle, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(shufflePanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(labelShuffle)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(labelShuffle)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(betterFilterLab)))
+                .addContainerGap(19, Short.MAX_VALUE))
         );
         shufflePanelLayout.setVerticalGroup(
             shufflePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(shufflePanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(labelShuffle)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(shuffleLab1)
+                .addGroup(shufflePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(labelShuffle)
+                    .addComponent(betterFilterLab))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(shufflePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(shuffleLab1)
+                    .addComponent(maskPop))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(shufflePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(shufflebounds1)
@@ -1141,6 +1167,9 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
                 .addComponent(analyseShuffle)
                 .addContainerGap())
         );
+
+        maskPop.setSelected(false);
+        betterFilterLab.setVisible(false);
 
         MeasuresTabbedPanel.addTab("Shuffle", shufflePanel);
 
@@ -1407,24 +1436,27 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
         }
         else{
             DiAna_Ana.drawPop(objPopA, iHandA);
+            imA2.setDisplayRange(0, objPopA.getNbObjects());
             imA2.updateAndDraw();
             imA2.show();
             DiAna_Ana.drawPop(objPopB, iHandB);
+            imB2.setDisplayRange(0, objPopB.getNbObjects());
             imB2.updateAndDraw();
             imB2.show();
             initial.setText("Initialized");
             if(init==true){ //reset the "all object touching"
-                DiAna_Ana.drawPop(objPopA, iHandA);
-                imA2.updateAndDraw();
-                imA2.show();
-                DiAna_Ana.drawPop(objPopB, iHandB);
-                imB2.updateAndDraw();
-                imB2.show();
+//                DiAna_Ana.drawPop(objPopA, iHandA);
+//                imA2.updateAndDraw();
+//                imA2.show();
+//                DiAna_Ana.drawPop(objPopB, iHandB);
+//                imB2.updateAndDraw();
+//                imB2.show();
                 initial.setText("Re-initialized");
              }
         }
         
         currPopA = new Objects3DPopulation (ImageInt.wrap(imA2));
+        //shuffPopA = new Objects3DPopulation (ImageInt.wrap(imA2));//this pop changes
         currPopB = new Objects3DPopulation (ImageInt.wrap(imB2));
         
         init=true;
@@ -1468,6 +1500,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
                 if(changePop.getSelectedItem()=="Current"){
                     obj = currPopA.getObject(indexes[i]);
                     obj.draw(mask, zz, 255);
+                    
                 }
                 if(changePop.getSelectedItem()=="Touching"){
                     obj = touchPopA.getObject(indexes[i]);
@@ -1769,7 +1802,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
                     modeBtouch.removeElement(p);
                 }
             }
-            modeBtouch=modeBtouch2;
+            modeBtouch = modeBtouch2;
         }
         if(changePop.getSelectedItem()=="Touching"){
             Object3DVoxels objT = (Object3DVoxels) touchPopB.getObject(indexes[0]);
@@ -1898,21 +1931,30 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
 
       private void analyseShuffleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analyseShuffleActionPerformed
         if(init==true) {
-            //Object3D mask2 = null;
+            Objects3DPopulation observed = new Objects3DPopulation (ImageInt.wrap(imA2));
             if (shufflebounds1.isSelected()) {
-                mask = DiAna_Ana.getmask(isA, true);
+                Object3D mask = DiAna_Ana.getmask(iHandA, true);
+                Measures.computeShuffle(mask, observed, objPopB);
             }
             if (shufflebounds2.isSelected()) {
-                ImageStack maskStack = imMask.getStack();
-                mask = DiAna_Ana.getmask(maskStack, false);
                 ImageHandler ihMask = ImageHandler.wrap(imMask);
+                Object3D mask = DiAna_Ana.getmask(ihMask, false);
+                if(maskPop.isSelected()){
+                    Objects3DPopulation bounds = new Objects3DPopulation (ImageInt.wrap(imMask));
+                    Objects3DPopulation observedB = new Objects3DPopulation (ImageInt.wrap(imB2));
+                    observed = Measures.touchingPop(bounds, observed, iHandA);
+                    Objects3DPopulation maskPopB = Measures.touchingPop(bounds, observedB, iHandB);
+                    Measures.computeShuffle(mask, observed, maskPopB);
+                }
+                else{
+                    Measures.computeShuffle(mask, observed, objPopB);
+                }
+                
                 //macro
                 maskbool = true;
                 maskTitle = imMask.getTitle();
             }
-
-            Measures.computeShuffle(mask, objPopA, objPopB);
-
+            
             //Macro
             imgTitle1 = imA.getTitle();
             imgTitle2 = imB.getTitle();
@@ -2032,8 +2074,9 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
                 RoiFrame.setVisible(true);
                 ImageHandler ColocHandler = meas.getImageColoc();
                 ColocHandler.setMinAndMax((float)0, (float)ColocHandler.getMax());
-                ColocHandler.setCalibration(cali);
+                ColocHandler.setScale(iHA);
                 ColocHandler.set332RGBLut();
+                colocPlus = ColocHandler.getImagePlus();
                 ColocHandler.show();
             }
             
@@ -2051,6 +2094,15 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
         }
         else{IJ.showMessage("Initialize before analyse");}
       }//GEN-LAST:event_analyseColocActionPerformed
+
+    private void maskPopStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_maskPopStateChanged
+                if(maskPop.isSelected()){
+                    betterFilterLab.setVisible(true);
+                }
+                else{
+                    betterFilterLab.setVisible(false);
+                }
+    }//GEN-LAST:event_maskPopStateChanged
 
     public void clickOnObjectAon(java.awt.event.MouseEvent evt){
         if(RoiFrame.isActive()==true){
@@ -2274,6 +2326,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
     private javax.swing.JButton analyseColoc;
     private javax.swing.JButton analyseMeasures;
     private javax.swing.JButton analyseShuffle;
+    private javax.swing.JLabel betterFilterLab;
     private javax.swing.ButtonGroup boundingGroup1;
     private javax.swing.JCheckBox centro;
     private javax.swing.JComboBox changePop;
@@ -2316,6 +2369,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
     private javax.swing.JLabel labelImA;
     private javax.swing.JLabel labelImB;
     private javax.swing.JLabel labelShuffle;
+    private javax.swing.JCheckBox maskPop;
     private javax.swing.JCheckBox mass;
     private javax.swing.JCheckBox mean;
     private javax.swing.JLabel measAnaLab1;
