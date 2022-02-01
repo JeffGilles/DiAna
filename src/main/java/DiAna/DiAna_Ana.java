@@ -27,7 +27,7 @@ import ij.Macro;
 import ij.WindowManager;
 import ij.plugin.PlugIn;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.List;
 import mcib3d.geom.Object3D;
 import mcib3d.geom.Objects3DPopulation;
 import mcib3d.geom.Voxel3D;
@@ -51,11 +51,11 @@ public class DiAna_Ana implements PlugIn {
     public static Objects3DPopulation touchingPop (Objects3DPopulation objPop1, Objects3DPopulation objPop2, ImagePlus im2, boolean delete){
         ImageStack iStack2 = im2.getImageStack();
         Objects3DPopulation pop = new Objects3DPopulation(ImageInt.wrap(im2));
-        ArrayList<Object3D> bTouch = new ArrayList<> ();
+        List<Object3D> bTouch = new ArrayList<> ();
         ImageHandler iHand = ImageHandler.wrap(iStack2);
         for(int i=0; i<objPop1.getNbObjects();i++){
             Object3D obA = objPop1.getObject(i);
-            LinkedList<Voxel3D> vox = obA.listVoxels(iHand);// THOMAS new mcib3d v3.94
+            List<Voxel3D> vox = obA.listVoxels(iHand);// THOMAS new mcib3d v3.94
             for (Voxel3D voxel3D : vox) {
                 int val = (int) voxel3D.getValue();
                 Object3D object3D = pop.getObjectByValue(val);
@@ -71,10 +71,11 @@ public class DiAna_Ana implements PlugIn {
 //                }
 //            }
         }
+        
         for(int i=(pop.getNbObjects()-1); i>=0; i--){    //delete objects not touching
             if(!bTouch.contains(pop.getObject(i))){
                 if(delete==true){
-                pop.getObject(i).draw(iStack2, 0);  //change this with iHand and test
+                pop.getObject(i).draw(iHand, 0);  //change this with iHand and test
                 }
                 pop.removeObject(i);
             }
@@ -89,7 +90,7 @@ public class DiAna_Ana implements PlugIn {
      * @param ihand
      */
     public static void drawPop (Objects3DPopulation objpop, ImageHandler ihand){
-        for(int i=1; i<=objpop.getNbObjects(); i++){       //re-asign values with numbers.
+        for(int i=1; i<=objpop.getNbObjects(); i++){       //re-asign values with numbers
             objpop.getObject(i-1).draw(ihand, i);
         }
     }
@@ -105,20 +106,18 @@ public class DiAna_Ana implements PlugIn {
     public static Objects3DPopulation nottouchingPop (Objects3DPopulation objPop1, Objects3DPopulation objPop2, ImagePlus im2){
         ImageStack iStack2 = im2.getImageStack();
         Objects3DPopulation pop = new Objects3DPopulation(ImageInt.wrap(im2));
-        ArrayList<Object3D> notTouch = new ArrayList<> ();
+        List<Object3D> notTouch = new ArrayList<> ();
         ImageHandler iHand = ImageHandler.wrap(iStack2);
         for(int i=0; i<objPop1.getNbObjects();i++){
             Object3D obA = objPop1.getObject(i);
             
-            LinkedList<Voxel3D> vox = obA.listVoxels(iHand); // THOMAS new mcib3d v3.94
-            for (Voxel3D voxel3D : vox) {
-                int val = (int) voxel3D.getValue();
+            List<Voxel3D> vox = obA.listVoxels(iHand); // THOMAS new mcib3d v4.01
+            vox.stream().map(voxel3D -> (int) voxel3D.getValue()).forEachOrdered(val -> {
                 Object3D object3D = pop.getObjectByValue(val);
                 if ((val > 0) && (!notTouch.contains(object3D))) {
                     notTouch.add(object3D);
                 }
-            }
-//            ArrayList<Voxel3D> vox = obA.listVoxels(iHand);
+            });//            ArrayList<Voxel3D> vox = obA.listVoxels(iHand);
 //            for(int j=0; j<vox.size(); j++){
 //                if(vox.get(j).getValue()!=0 && bTouch.contains(pop.getObject((int) vox.get(j).getValue()-1))==false){
 //                    bTouch.add(pop.getObject((int) vox.get(j).getValue()-1));
@@ -218,7 +217,7 @@ public class DiAna_Ana implements PlugIn {
     public static Objects3DPopulation popShuffle (Object3D mask, Objects3DPopulation pop1){
         Objects3DPopulation shufflePop = pop1;
         shufflePop.setMask(mask);
-        ArrayList<Object3D> shuObj=shufflePop.shuffle();
+        List<Object3D> shuObj=shufflePop.shuffle();
         shufflePop.addObjects(shuObj);
         return shufflePop;
     }

@@ -51,13 +51,14 @@ import javax.swing.JFrame;
 import mcib3d.geom.Object3D;
 import mcib3d.geom.Object3DVoxels;
 import mcib3d.geom.Objects3DPopulation;
+import mcib3d.geom2.Objects3DIntPopulation;
 import mcib3d.image3d.ImageHandler;
 import mcib3d.image3d.ImageInt;
 
 
 /**
  *
- * @author jeff
+ * @author jeff G
  */
 public class DiAna_Analyse extends JFrame implements MouseListener {
     
@@ -66,7 +67,6 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
     String[] title;
     String imgASelect, imgBSelect, imgA2Select, imgB2Select, imgMaskSelect, titleMask;
     ImagePlus imA, imA2, imB, imB2, colocPlus, imMask;
-    //ImagePlus imA2, imB2, colocPlus;
     ImageStack isA, isB, isA2, isB2;
     ImageProcessor ipA, ipB, ipA2, ipB2;
     ImageHandler iHandA, iHandB, iHA, iHB;
@@ -76,9 +76,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
     
     //Preferences
     boolean allTouch1bool = Prefs.get("Diana_allTouch1.boolean", false);
-    boolean colocFromAbool = Prefs.get("Diana_colocFromA1.boolean", true);
-    boolean colocFromBbool = Prefs.get("Diana_colocFromB1.boolean", true);
-    boolean colocFromABbool = Prefs.get("Diana_colocFromAB1.boolean", true);
+    boolean overlapColocBool = Prefs.get("Diana_colocFromA1.boolean", true);
     boolean colocCCbool = Prefs.get("Diana_colocCC1.boolean", true);
     boolean colocECbool = Prefs.get("Diana_colocEC1.boolean", true);
     boolean colocCEbool = Prefs.get("Diana_colocCE1.boolean", true);
@@ -179,7 +177,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
         Objects3DPopulation popB= new Objects3DPopulation(imInt2);//PB curr vs objpop
         Measures meas= new Measures(iHA, iHB, popA, popB);
         if(colocBool){
-            meas.computeColoc(true, true, true, true, true, true, surfcontactbool, distC);
+            meas.computeColoc(true, true, true, true, surfcontactbool, distC);
             ImageHandler ColocHandler = meas.getImageColoc();
             ColocHandler.setMinAndMax((float)0, (float)ColocHandler.getMax());
             ColocHandler.setScale(iHA);
@@ -409,9 +407,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
         MeasuresTabbedPanel = new javax.swing.JTabbedPane();
         colocPanel = new javax.swing.JPanel();
         tablColocLabA = new javax.swing.JLabel();
-        colocFromA = new javax.swing.JCheckBox("% from objects in A", colocFromAbool);
-        colocFromB = new javax.swing.JCheckBox("% from objects in B", colocFromBbool);
-        colocFromAB = new javax.swing.JCheckBox("% from objects A+B", colocFromABbool);
+        overlapColoc = new javax.swing.JCheckBox("% from objects in A", overlapColocBool);
         disColocLabA = new javax.swing.JLabel();
         colocCC = new javax.swing.JCheckBox("Center-Center", colocCCbool);
         colocCE = new javax.swing.JCheckBox("Center-Edge", colocCEbool);
@@ -455,7 +451,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
         mass = new javax.swing.JCheckBox("Center of mass", massbool);
         feret = new javax.swing.JCheckBox("Feret's diameter", feretbool);
         analyseMeasures = new javax.swing.JButton();
-        intDen = new javax.swing.JCheckBox("Feret's diameter", feretbool);
+        intDen = new javax.swing.JCheckBox("Feret's diameter", intDenbool);
 
         RoiFrame.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         RoiFrame.setTitle("ROI Selections & Localisation");
@@ -783,17 +779,9 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
         tablColocLabA.setFont(new java.awt.Font("Ubuntu", 1, 12)); // NOI18N
         tablColocLabA.setText("Table");
 
-        colocFromA.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
-        colocFromA.setText("% from objects in A");
-        colocFromA.setToolTipText("Measure the percentage of the colocalisation part with the object in A");
-
-        colocFromB.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
-        colocFromB.setText("% from objects in B");
-        colocFromB.setToolTipText("Measure the percentage of the colocalisation part with the object in B");
-
-        colocFromAB.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
-        colocFromAB.setText("% from objects A+B");
-        colocFromAB.setToolTipText("Measure the percentage of the colocalisation part with the objects in A and B.");
+        overlapColoc.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
+        overlapColoc.setText("% from objects");
+        overlapColoc.setToolTipText("Measure the percentage of the colocalisation part with the objects");
 
         disColocLabA.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
         disColocLabA.setText("Distance from objects in A:");
@@ -866,7 +854,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
                                         .addComponent(surfcoloc)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(surfMax, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                .addGap(12, 12, 12)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(colocPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(distMaxSurface)
                                     .addGroup(colocPanelLayout.createSequentialGroup()
@@ -874,14 +862,9 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
                                             .addComponent(colocCC)
                                             .addComponent(colocCE))
                                         .addGap(16, 16, 16)
-                                        .addGroup(colocPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(colocFromAB)
-                                            .addComponent(colocEC)))))
-                            .addGroup(colocPanelLayout.createSequentialGroup()
-                                .addComponent(colocFromA)
-                                .addGap(18, 18, 18)
-                                .addComponent(colocFromB)))
-                        .addGap(0, 0, Short.MAX_VALUE))))
+                                        .addComponent(colocEC))))
+                            .addComponent(overlapColoc))
+                        .addGap(0, 42, Short.MAX_VALUE))))
             .addGroup(colocPanelLayout.createSequentialGroup()
                 .addGap(186, 186, 186)
                 .addComponent(analyseColoc, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -894,24 +877,17 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
                     .addGroup(colocPanelLayout.createSequentialGroup()
                         .addComponent(tablColocLabA)
                         .addGap(0, 0, 0)
-                        .addGroup(colocPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(colocFromA)
-                            .addComponent(colocFromB))
+                        .addComponent(overlapColoc)
+                        .addGap(0, 0, 0)
                         .addComponent(disColocLabA))
                     .addGroup(colocPanelLayout.createSequentialGroup()
-                        .addGroup(colocPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(colocPanelLayout.createSequentialGroup()
-                                .addGap(38, 38, 38)
-                                .addComponent(colocCC)
-                                .addGap(0, 0, 0)
-                                .addGroup(colocPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(colocCE)
-                                    .addComponent(colocEC))
-                                .addGap(4, 4, 4))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, colocPanelLayout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(colocFromAB)
-                                .addGap(48, 48, 48)))
+                        .addGap(38, 38, 38)
+                        .addComponent(colocCC)
+                        .addGap(0, 0, 0)
+                        .addGroup(colocPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(colocCE)
+                            .addComponent(colocEC))
+                        .addGap(4, 4, 4)
                         .addGroup(colocPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(surfcoloc)
                             .addComponent(surfMax, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1395,23 +1371,22 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
     private void imgAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_imgAActionPerformed
         Manager.testImageSizes(1, false);
         imgASelect=(String)  imgA.getSelectedItem();
-        if(title.length>0){
+        if (title.length > 0){
             WindowManager.getFrame(imgASelect).toFront();
             imA = WindowManager.getImage(imgASelect);
             int slice = WindowManager.getImage(imgASelect).getNSlices();
             WindowManager.getImage(imgASelect).setSlice(slice/2);
-            cali= imA.getCalibration();
+            cali = imA.getCalibration();
         }
-        
-        imA=WindowManager.getImage(imgASelect);
+        imA = WindowManager.getImage(imgASelect);
         imgA.updateUI();
 
     }//GEN-LAST:event_imgAActionPerformed
 
     private void imgBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_imgBActionPerformed
         Manager.testImageSizes(1, false);
-        imgBSelect=(String)  imgB.getSelectedItem();
-        imB=WindowManager.getImage(imgBSelect);
+        imgBSelect=(String) imgB.getSelectedItem();
+        imB = WindowManager.getImage(imgBSelect);
         
     }//GEN-LAST:event_imgBActionPerformed
 
@@ -1496,17 +1471,20 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
         for (int zz = zmin; zz <= zmax; zz++) {
             IJ.showStatus("Computing Roi " + zz);
             ByteProcessor mask = new ByteProcessor(imA2.getWidth(), imA2.getHeight());
+            ImageHandler mask2 = ImageHandler.newBlankImageHandler("mask", iHA);
             for (int i = 0; i < indexes.length; i++) {
                 if(changePop.getSelectedItem()=="Current"){
                     obj = currPopA.getObject(indexes[i]);
                     obj.draw(mask, zz, 255);
-                    
+                    obj.draw(mask2, 255);
                 }
                 if(changePop.getSelectedItem()=="Touching"){
                     obj = touchPopA.getObject(indexes[i]);
                     obj.draw(mask, zz, 255);
+                    obj.draw(mask2, 255);
                 }
             }
+            mask2.thresholdAboveInclusive(1);
             mask.setThreshold(1, 255, ImageProcessor.NO_LUT_UPDATE);
             ImagePlus maskPlus = new ImagePlus("mask " + zz, mask);
             ThresholdToSelection tts = new ThresholdToSelection();
@@ -1661,24 +1639,24 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
 
         int[] indexes = jListA.getSelectedIndices();
         Object3DVoxels objVox;
-        if(changePop.getSelectedItem()=="Current"){
+        if (changePop.getSelectedItem()=="Current") {
             Object3DVoxels obj0 = (Object3DVoxels) currPopA.getObject(indexes[0]);
             for (int i = 0; i < indexes.length; i++) {
                 objVox = (Object3DVoxels) currPopA.getObject(indexes[i]);
                 obj0.addVoxels(objVox.getVoxels());
                 
                 //update of Touch
-                if(modeAtouch.contains(modeAcurr.get(indexes[i]))==true && modeAtouch.contains(modeAcurr.get(indexes[0]))==false){
+                if (modeAtouch.contains(modeAcurr.get(indexes[i]))==true && modeAtouch.contains(modeAcurr.get(indexes[0]))==false){
                     modeAtouch.addElement(modeAcurr.get(indexes[0]));
                     touchPopA.addObject(currPopA.getObject(indexes[0]));
                     touchPopA.updateNamesAndValues();
                 }
-                if(modeAtouch.contains(modeAcurr.get(indexes[0]))==true){
+                if (modeAtouch.contains(modeAcurr.get(indexes[0]))==true){
                     Object3DVoxels objT = (Object3DVoxels) touchPopA.getObjectByValue(indexes[0]+1);
                     objT.addVoxels(objVox.getVoxels());
                 }
             }
-            for (int i = indexes.length-1; i >0 ; i--) {
+            for (int i = indexes.length-1; i > 0 ; i--) {
                 if(modeAtouch.contains(modeAcurr.get(indexes[i]))==true){
                     int el = modeAtouch.indexOf(modeAcurr.get(indexes[i]));
                     modeAtouch.removeElementAt(el);
@@ -1690,9 +1668,9 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
             }
             //reOrderTouch, needed for the selection
             DefaultListModel modeAtouch2 = new DefaultListModel();
-            while(modeAtouch.isEmpty()==false){
+            while (modeAtouch.isEmpty()==false) {
                 Object p = modeAtouch.get(0);
-                if(modeAtouch.size()>1){
+                if (modeAtouch.size()>1){
                     for(int i=1;i<modeAtouch.size();i++){
                         if(Integer.parseInt(p.toString().substring(5))>Integer.parseInt(modeAtouch.get(i).toString().substring(5))){
                             p = modeAtouch.get(i);
@@ -1701,7 +1679,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
                     modeAtouch2.addElement(p);
                     modeAtouch.removeElement(p);
                 }
-                else{
+                else {
                     modeAtouch2.addElement(p);
                     modeAtouch.removeElement(p);
                 }
@@ -1709,7 +1687,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
             modeAtouch=modeAtouch2;
         }
         
-        if(changePop.getSelectedItem()=="Touching"){
+        if (changePop.getSelectedItem() == "Touching") {
             Object3DVoxels objT = (Object3DVoxels) touchPopA.getObject(indexes[0]);
             Object3DVoxels obj0 = (Object3DVoxels) currPopA.getObject(touchPopA.getObject(indexes[0]).getValue()-1);
             for (int i = 0; i < indexes.length; i++) {
@@ -1732,16 +1710,16 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
 
     private void deleteObjectsAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteObjectsAActionPerformed
         int[] indexes = jListA.getSelectedIndices();
-        for (int i = indexes.length-1; i >=0 ; i--) {
-            if(changePop.getSelectedItem()=="Current"){
-                if(modeAtouch.contains(modeAcurr.get(indexes[i]))==true){
+        for (int i = indexes.length-1; i >= 0 ; i--) {
+            if (changePop.getSelectedItem() == "Current"){
+                if (modeAtouch.contains(modeAcurr.get(indexes[i]))==true){
                     modeAtouch.removeElement(modeAcurr.get(indexes[i]));
                 }
                 modeAcurr.remove(indexes[i]);
                 currPopA.getObject(indexes[i]).draw(iHandA, 0);
                 currPopA.removeObject(indexes[i]);
             }
-            if(changePop.getSelectedItem()=="Touching"){
+            if (changePop.getSelectedItem() == "Touching"){
                 int element = modeAcurr.indexOf(modeAtouch.get(indexes[i]));
                 modeAcurr.removeElement(modeAtouch.get(indexes[i]));
                 modeAtouch.remove(indexes[i]);
@@ -1756,24 +1734,24 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
     private void mergeObjectsBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mergeObjectsBActionPerformed
         int[] indexes = jListB.getSelectedIndices();
         Object3DVoxels objVox;
-        if(changePop.getSelectedItem()=="Current"){
+        if (changePop.getSelectedItem() == "Current"){
             Object3DVoxels obj0 = (Object3DVoxels) currPopB.getObject(indexes[0]);
             for (int i = 0; i < indexes.length; i++) {
                 objVox = (Object3DVoxels) currPopB.getObject(indexes[i]);
                 obj0.addVoxels(objVox.getVoxels());
                 
                 //update of Touch
-                if(modeBtouch.contains(modeBcurr.get(indexes[i]))==true && modeBtouch.contains(modeBcurr.get(indexes[0]))==false){
+                if (modeBtouch.contains(modeBcurr.get(indexes[i]))==true && modeBtouch.contains(modeBcurr.get(indexes[0]))==false){
                     modeBtouch.addElement(modeBcurr.get(indexes[0]));
                     touchPopB.addObject(objPopB.getObject(indexes[0]));
                     touchPopB.updateNamesAndValues();
                 }
-                if(modeBtouch.contains(modeBcurr.get(indexes[0]))==true){
+                if (modeBtouch.contains(modeBcurr.get(indexes[0]))==true){
                     Object3DVoxels objT = (Object3DVoxels) touchPopB.getObjectByValue(indexes[0]+1);
                     objT.addVoxels(objVox.getVoxels());
                 }
             }
-            for (int i = indexes.length-1; i >0 ; i--) {
+            for (int i = indexes.length-1; i > 0 ; i--) {
                 if(modeBtouch.contains(modeBcurr.get(indexes[i]))==true){
                     int el= modeBtouch.indexOf(modeBcurr.get(indexes[i]));
                     modeBtouch.removeElementAt(el);
@@ -1786,9 +1764,9 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
             }
             //reOrderTouch, needed for the selection
             DefaultListModel modeBtouch2 = new DefaultListModel();
-            while(modeBtouch.isEmpty()==false){
+            while (modeBtouch.isEmpty() == false) {
                 Object p=modeBtouch.get(0);
-                if(modeBtouch.size()>1){
+                if (modeBtouch.size() > 1) {
                     for(int i=1; i<modeBtouch.size(); i++){
                         if(Integer.parseInt(p.toString().substring(5))>Integer.parseInt(modeBtouch.get(i).toString().substring(5))){
                             p=modeBtouch.get(i);
@@ -1804,7 +1782,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
             }
             modeBtouch = modeBtouch2;
         }
-        if(changePop.getSelectedItem()=="Touching"){
+        if (changePop.getSelectedItem()=="Touching") {
             Object3DVoxels objT = (Object3DVoxels) touchPopB.getObject(indexes[0]);
             Object3DVoxels obj0 = (Object3DVoxels) currPopB.getObject(touchPopB.getObject(indexes[0]).getValue()-1);
             for (int i = 0; i < indexes.length; i++) {
@@ -1827,17 +1805,16 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
 
     private void deleteObjectsBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteObjectsBActionPerformed
         int[] indexes = jListB.getSelectedIndices();
-        for (int i = indexes.length-1; i >=0 ; i--) {
-            if(changePop.getSelectedItem()=="Current"){
+        for (int i = indexes.length-1; i >= 0 ; i--) {
+            if (changePop.getSelectedItem() == "Current"){
                 if(modeBtouch.contains(modeBcurr.get(indexes[i]))==true){
                     modeBtouch.removeElement(modeBcurr.get(indexes[i]));
                 }
                 modeBcurr.remove(indexes[i]);
-//                objPopB.getObject(indexes[i]).draw(isB2, 0);
                 currPopB.getObject(indexes[i]).draw(iHandB, 0);
                 currPopB.removeObject(indexes[i]);
             }
-            if(changePop.getSelectedItem()=="Touching"){
+            if (changePop.getSelectedItem() == "Touching"){
                 int element = modeBcurr.indexOf(modeBtouch.get(indexes[i]));
                 modeBcurr.removeElement(modeBtouch.get(indexes[i]));
                 modeBtouch.remove(indexes[i]);
@@ -1939,7 +1916,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
             if (shufflebounds2.isSelected()) {
                 ImageHandler ihMask = ImageHandler.wrap(imMask);
                 Object3D mask = DiAna_Ana.getmask(ihMask, false);
-                if(maskPop.isSelected()){
+                if (maskPop.isSelected()) {
                     Objects3DPopulation bounds = new Objects3DPopulation (ImageInt.wrap(imMask));
                     Objects3DPopulation observedB = new Objects3DPopulation (ImageInt.wrap(imB2));
                     observed = Measures.touchingPop(bounds, observed, iHandA);
@@ -1997,7 +1974,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
       }//GEN-LAST:event_shufflebounds2ActionPerformed
 
       private void analyseAdjacencyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analyseAdjacencyActionPerformed
-        if(init==true){
+        if (init == true) {
             numClo = Integer.parseInt(closestField1.getText());
             proxyCCbool = proxyCC.isSelected();
             proxyEEbool = proxyEE.isSelected();
@@ -2007,8 +1984,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
             Measures meas = new Measures(iHandA, iHandB, currPopA, currPopB);
             distA = Double.parseDouble(surfMax2.getText());
             meas.ComputeAdjacency(numClo, proxyCCbool, proxyEEbool, proxyCEbool, proxyECbool, surfcontactboolAdj, distA);
-                        
-//            distC=Double.parseDouble(surfMax2.getText());
+            
             imgTitle1=imA.getTitle();imgTitle2=imB.getTitle();
             labTitle1=imA2.getTitle();labTitle2=imB2.getTitle();
             adjaBool = true;
@@ -2023,16 +1999,14 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
       }//GEN-LAST:event_analyseAdjacencyActionPerformed
 
       private void analyseColocActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analyseColocActionPerformed
-        if(init==true){
+        if (init == true) {
             jListA.removeAll();
             jListB.removeAll();
             
-            IJ.log("number of objects in image A = "+currPopA.getNbObjects());
-            IJ.log("number of objects in image B = "+currPopB.getNbObjects());
+            //IJ.log("number of objects in image A = "+currPopA.getNbObjects());
+            //IJ.log("number of objects in image B = "+currPopB.getNbObjects());
             
-            colocFromAbool = colocFromA.isSelected();
-            colocFromBbool = colocFromB.isSelected();
-            colocFromABbool = colocFromAB.isSelected();
+            overlapColocBool = overlapColoc.isSelected();
             colocCCbool = colocCC.isSelected();
 //            if(colocEE.isSelected())
             colocCEbool = colocCE.isSelected();
@@ -2041,11 +2015,11 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
             Measures meas = new Measures(iHandA, iHandB, currPopA, currPopB);
             
             distC = Double.parseDouble(surfMax.getText());
-            meas.computeColoc(colocFromAbool, colocFromBbool, colocFromABbool, colocCCbool, colocCEbool, colocECbool, surfcontactbool, distC);
+            meas.computeColoc(overlapColocBool, colocCCbool, colocCEbool, colocECbool, surfcontactbool, distC);
             touchPopA = meas.getTouchingPopA();
             touchPopB = meas.getTouchingPopB();
             
-            if(contactMap.isSelected()){
+            if (contactMap.isSelected()) {
                 //save Rois
                 arrayRoisA=Measures.arrayRoi(currPopA, "objA-");
                 for (Roi arrayRoisA1 : arrayRoisA) {
@@ -2079,6 +2053,9 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
                 colocPlus = ColocHandler.getImagePlus();
                 ColocHandler.show();
             }
+//            Objects3DIntPopulation pop1 = new Objects3DIntPopulation(iHandA);
+//            Objects3DIntPopulation pop2 = new Objects3DIntPopulation(iHandB);
+//            meas.computeColocalisationInt(pop1, pop2);
             
             //Macro
 //            distC=Double.parseDouble(surfMax.getText());
@@ -2105,14 +2082,14 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
     }//GEN-LAST:event_maskPopStateChanged
 
     public void clickOnObjectAon(java.awt.event.MouseEvent evt){
-        if(RoiFrame.isActive()==true){
+        if (RoiFrame.isActive() == true) {
             imA2.getCanvas().addMouseListener(this);
             imB2.getCanvas().addMouseListener(this);
         }
     }
     
     public void clickOnObjectAoff(java.awt.event.MouseEvent evt){
-        if(RoiFrame.isActive()==true){
+        if (RoiFrame.isActive() == true) {
             imA2.getCanvas().removeMouseListener(this);
             imB2.getCanvas().removeMouseListener(this);
         }
@@ -2139,7 +2116,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
 //            int[] val=WindowManager.getCurrentImage().getPixel(x, y);
 //            v=val[0];
 //        }
-        if(id==imA2.getID()){
+        if (id == imA2.getID()) {
             if( (v!=0) && (changePop.getSelectedItem()=="Current")){
                 jListA.setSelectedIndex(v);
             }
@@ -2181,7 +2158,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
 
     private boolean saveObjectsA(String path) {
         Objects3DPopulation pop = objPopA;
-        if(changePop.getSelectedItem()=="Touching"){
+        if (changePop.getSelectedItem() == "Touching") {
             pop = touchPopA;
         }
         return pop.saveObjects(path);
@@ -2230,12 +2207,8 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
         //Others
         allTouch1bool=allTouch1.isSelected();
         Prefs.set("Diana_allTouch1.boolean", allTouch1bool);
-        colocFromAbool=colocFromA.isSelected();
-        Prefs.set("Diana_colocFromA1.boolean", colocFromAbool);
-        colocFromBbool=colocFromB.isSelected();
-        Prefs.set("Diana_colocFromB1.boolean", colocFromBbool);
-        colocFromABbool=colocFromAB.isSelected();
-        Prefs.set("Diana_colocFromAB1.boolean", colocFromABbool);
+        overlapColocBool=overlapColoc.isSelected();
+        Prefs.set("Diana_colocFromA1.boolean", overlapColocBool);
         colocCCbool=colocCC.isSelected();
         Prefs.set("Diana_colocCC1.boolean", colocCCbool);
         colocECbool=colocEC.isSelected();
@@ -2336,9 +2309,6 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
     private javax.swing.JCheckBox colocCC;
     private javax.swing.JCheckBox colocCE;
     private javax.swing.JCheckBox colocEC;
-    private javax.swing.JCheckBox colocFromA;
-    private javax.swing.JCheckBox colocFromAB;
-    private javax.swing.JCheckBox colocFromB;
     private javax.swing.JPanel colocPanel;
     private javax.swing.JCheckBox contactMap;
     private javax.swing.JButton deleteObjectsA;
@@ -2381,6 +2351,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
     private javax.swing.JCheckBox minMax;
     private javax.swing.JLabel nbObA;
     private javax.swing.JLabel nbObB;
+    private javax.swing.JCheckBox overlapColoc;
     private javax.swing.JLabel popLabel;
     private javax.swing.JCheckBox proxyCC;
     private javax.swing.JCheckBox proxyCE;

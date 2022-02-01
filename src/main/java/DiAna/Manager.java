@@ -25,6 +25,7 @@ import ij.ImagePlus;
 import ij.WindowManager;
 import ij.plugin.ChannelSplitter;
 import mcib3d.geom.Objects3DPopulation;
+import mcib3d.geom2.Objects3DIntPopulation;
 
 /**
  *
@@ -38,6 +39,8 @@ public class Manager {
     static ImagePlus plus2seg;
     static Objects3DPopulation pop1;
     static Objects3DPopulation pop2;
+    static Objects3DIntPopulation pop1i;
+    static Objects3DIntPopulation pop2i;
 
     static void setImage1(ImagePlus plus){
         plus1=plus; 
@@ -61,6 +64,14 @@ public class Manager {
     
     static void setPopulation2(Objects3DPopulation pop){
         pop2=pop;
+    }
+    
+    static void setPopulationInt1(Objects3DIntPopulation pop){
+        pop1i=pop;
+    }
+    
+    static void setPopulationInt2(Objects3DIntPopulation pop){
+        pop2i=pop;
     }
     
     /**

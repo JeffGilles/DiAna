@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.net.URI;
 import javax.swing.JFrame;
 import mcib3d.geom.Objects3DPopulation;
+import mcib3d.geom2.Objects3DIntPopulation;
 import mcib3d.image3d.*;
 
 /**
@@ -53,7 +54,7 @@ public class Diana_SegmentGui extends JFrame {
     int highthrA = 0, highthrB = 0;
     float radius, rZ, noise, sd=1;
     boolean excludeZ=false, filterboolA=false, filterboolB=false;
-    Objects3DPopulation objPopA, objPopB;
+    Objects3DIntPopulation objPopA, objPopB;
     Calibration cali;
     
     private int segtype = -1;
@@ -125,7 +126,7 @@ public class Diana_SegmentGui extends JFrame {
             image = segment.filter(img, handleFilter, radius);
             
             if(segClassicBool){
-                Objects3DPopulation pop=new segment().segClassic(image, thr, min, max, exXY, exZ);
+                Objects3DIntPopulation pop=new segment().segClassic(image, thr, min, max, exXY, exZ);
                 ImagePlus plus = segment.createImageObjects(img.getShortTitle()+"-labelled", img, pop);
                 image.close();
                 plus.show();
@@ -138,14 +139,14 @@ public class Diana_SegmentGui extends JFrame {
         if(spotBool){
             ImageHandler seed3D = segment.ImagePeaks(img, radius, rZ, noise);
             ImageHandler iHA = ImageHandler.wrap(img.duplicate());
-            Objects3DPopulation pop = new segment().segSpot(iHA, seed3D, seed, gauss, sd, min, max, exXY);
+            Objects3DIntPopulation pop = new segment().segSpot(iHA, seed3D, seed, gauss, sd, min, max, exXY);
             image = segment.createImageObjects(img.getShortTitle()+"-labelled", img, pop);
             image.show();
 //            ImageStack stack = segment.createImageObjects(img.getImageStack(), pop);
 //            image = segment.showImageObjects(img.getShortTitle()+"-labelled", stack, pop, cali);
         }
         if(iterBool){
-            Objects3DPopulation pop = new segment().segIter(img, min, max, step, mth, exXY);
+            Objects3DIntPopulation pop = new segment().segIter(img, min, max, step, mth, exXY);
 //            ImageStack stack = segment.createImageObjects(img.getImageStack(), pop);
 //            image = segment.showImageObjects(img.getShortTitle()+"-labelled", stack, pop, cali);
             image = segment.createImageObjects(img.getShortTitle()+"-labelled", img, pop);
@@ -457,14 +458,15 @@ public class Diana_SegmentGui extends JFrame {
         FilterBoxB.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "gaussian", "median", "mean", "none" }));
         FilterBoxB.setSelectedIndex(filterBoxBPref);
         FilterBoxB.setToolTipText("Indicate which filter you want to use. Select \"None\" if you've already done a segmentation.");
-        FilterBoxB.setPreferredSize(new java.awt.Dimension(80, 24));
+        FilterBoxB.setMinimumSize(new java.awt.Dimension(80, 20));
+        FilterBoxB.setPreferredSize(new java.awt.Dimension(100, 20));
 
         FilterButB.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
         FilterButB.setText("Valide");
         FilterButB.setToolTipText("Press here to perform the filter.");
-        FilterButB.setMaximumSize(new java.awt.Dimension(70, 27));
+        FilterButB.setMaximumSize(new java.awt.Dimension(80, 27));
         FilterButB.setMinimumSize(new java.awt.Dimension(70, 27));
-        FilterButB.setPreferredSize(new java.awt.Dimension(70, 20));
+        FilterButB.setPreferredSize(new java.awt.Dimension(80, 20));
         FilterButB.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 FilterButBActionPerformed(evt);
@@ -515,11 +517,21 @@ public class Diana_SegmentGui extends JFrame {
         excludeEdgeXYB1.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
         excludeEdgeXYB1.setText("Exclude objects on XY edges");
         excludeEdgeXYB1.setToolTipText("If checked, it excludes objects which are touching XY edges");
+        excludeEdgeXYB1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                excludeEdgeXYB1ActionPerformed(evt);
+            }
+        });
 
         excludeEdgeZB1.setBackground(new java.awt.Color(225, 225, 224));
         excludeEdgeZB1.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
         excludeEdgeZB1.setText("Exclude objects on Z edges");
         excludeEdgeZB1.setToolTipText("If checked, it excludes objects which are touching Z edges (first and last slice)");
+        excludeEdgeZB1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                excludeEdgeZB1ActionPerformed(evt);
+            }
+        });
 
         segButB.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
         segButB.setText("Segment");
@@ -553,34 +565,32 @@ public class Diana_SegmentGui extends JFrame {
                     .addGroup(filtersClassicBLayout.createSequentialGroup()
                         .addGroup(filtersClassicBLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(filtersClassicBLayout.createSequentialGroup()
+                                .addGroup(filtersClassicBLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(maxSizeLabB1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(minLabB1, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(filtersClassicBLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(minSizeB1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(maxSizeB1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(threSlidB, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                            .addGroup(filtersClassicBLayout.createSequentialGroup()
                                 .addGroup(filtersClassicBLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(FilterTypeB)
+                                    .addComponent(thresholdLabB)
                                     .addGroup(filtersClassicBLayout.createSequentialGroup()
-                                        .addGroup(filtersClassicBLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                            .addComponent(maxSizeLabB1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(minLabB1, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(filtersClassicBLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(minSizeB1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(maxSizeB1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                                    .addGroup(filtersClassicBLayout.createSequentialGroup()
-                                        .addGroup(filtersClassicBLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(FilterTypeB)
-                                            .addComponent(thresholdLabB)
-                                            .addGroup(filtersClassicBLayout.createSequentialGroup()
-                                                .addGap(4, 4, 4)
-                                                .addGroup(filtersClassicBLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                    .addComponent(FilterButB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                    .addComponent(FilterBoxB, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(filtersClassicBLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(FilterRadLabB)
-                                            .addComponent(ThresValB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addComponent(filterRadB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                                .addGap(0, 24, Short.MAX_VALUE))
-                            .addComponent(threSlidB, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                                        .addGap(4, 4, 4)
+                                        .addComponent(FilterButB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(FilterBoxB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Short.MAX_VALUE)
+                                .addGroup(filtersClassicBLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(FilterRadLabB)
+                                    .addComponent(filterRadB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(ThresValB, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(27, 27, 27)))
                         .addContainerGap())))
             .addGroup(filtersClassicBLayout.createSequentialGroup()
-                .addGap(74, 74, 74)
+                .addGap(58, 58, 58)
                 .addComponent(segButB, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
@@ -597,11 +607,11 @@ public class Diana_SegmentGui extends JFrame {
                     .addComponent(filterRadB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(FilterButB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(6, 6, 6)
-                .addGroup(filtersClassicBLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(ThresValB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(thresholdLabB))
-                .addGap(0, 0, 0)
+                .addGap(3, 3, 3)
+                .addGroup(filtersClassicBLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(thresholdLabB)
+                    .addComponent(ThresValB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(3, 3, 3)
                 .addComponent(threSlidB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(9, 9, 9)
                 .addGroup(filtersClassicBLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -615,7 +625,7 @@ public class Diana_SegmentGui extends JFrame {
                 .addComponent(excludeEdgeXYB1, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(excludeEdgeZB1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(segButB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -963,7 +973,7 @@ public class Diana_SegmentGui extends JFrame {
                     .addComponent(valueThresIterB, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(excludeEdgeXYB3, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
                 .addComponent(segIteraB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(50, 50, 50))
         );
@@ -978,7 +988,9 @@ public class Diana_SegmentGui extends JFrame {
         );
         filtersPanelBLayout.setVerticalGroup(
             filtersPanelBLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(FilterTabbedPanB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(filtersPanelBLayout.createSequentialGroup()
+                .addComponent(FilterTabbedPanB, javax.swing.GroupLayout.PREFERRED_SIZE, 304, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         filtersPanelA.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Filters image A", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.DEFAULT_POSITION));
@@ -1002,7 +1014,8 @@ public class Diana_SegmentGui extends JFrame {
         filterBoxA.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "gaussian", "median", "mean", "none" }));
         filterBoxA.setSelectedIndex(filterBoxAPref);
         filterBoxA.setToolTipText("Indicate which filter you want to use. Select \"None\" if you've already done a segmentation");
-        filterBoxA.setPreferredSize(new java.awt.Dimension(80, 24));
+        filterBoxA.setMinimumSize(new java.awt.Dimension(80, 20));
+        filterBoxA.setPreferredSize(new java.awt.Dimension(82, 22));
 
         filterRadA.setText("1.0");
         filterRadA.setToolTipText("Radius in XY");
@@ -1013,9 +1026,9 @@ public class Diana_SegmentGui extends JFrame {
         FilterButA.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
         FilterButA.setText("Valide");
         FilterButA.setToolTipText("Press here to perform the filter");
-        FilterButA.setMaximumSize(new java.awt.Dimension(70, 27));
+        FilterButA.setMaximumSize(new java.awt.Dimension(80, 27));
         FilterButA.setMinimumSize(new java.awt.Dimension(70, 27));
-        FilterButA.setPreferredSize(new java.awt.Dimension(70, 20));
+        FilterButA.setPreferredSize(new java.awt.Dimension(80, 20));
         FilterButA.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 FilterButAActionPerformed(evt);
@@ -1069,11 +1082,21 @@ public class Diana_SegmentGui extends JFrame {
         excludeEdgeXYA1.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
         excludeEdgeXYA1.setText("Exclude objects on XY edges");
         excludeEdgeXYA1.setToolTipText("If checked, it excludes objects which are touching XY edges");
+        excludeEdgeXYA1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                excludeEdgeXYA1ActionPerformed(evt);
+            }
+        });
 
         excludeEdgeZA1.setBackground(new java.awt.Color(225, 225, 224));
         excludeEdgeZA1.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
         excludeEdgeZA1.setText("Exclude objects on Z edges");
         excludeEdgeZA1.setToolTipText("If checked, it excludes objects which are touching Z edges (first and last slice)");
+        excludeEdgeZA1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                excludeEdgeZA1ActionPerformed(evt);
+            }
+        });
 
         segButA.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
         segButA.setText("Segment");
@@ -1090,31 +1113,6 @@ public class Diana_SegmentGui extends JFrame {
         filtersClassicALayout.setHorizontalGroup(
             filtersClassicALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(filtersClassicALayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(filtersClassicALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(filtersClassicALayout.createSequentialGroup()
-                        .addGroup(filtersClassicALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(filtersClassicALayout.createSequentialGroup()
-                                .addGroup(filtersClassicALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(FilterTypeA)
-                                    .addGroup(filtersClassicALayout.createSequentialGroup()
-                                        .addGap(4, 4, 4)
-                                        .addComponent(thresholdLabA)))
-                                .addGap(38, 38, 38))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, filtersClassicALayout.createSequentialGroup()
-                                .addGroup(filtersClassicALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                    .addComponent(FilterButA, javax.swing.GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE)
-                                    .addComponent(filterBoxA, 0, 1, Short.MAX_VALUE))
-                                .addGap(18, 18, 18)))
-                        .addGroup(filtersClassicALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(FilterRadLabA)
-                            .addComponent(filterRadA, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(ThresValA, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addContainerGap(68, Short.MAX_VALUE))
-                    .addGroup(filtersClassicALayout.createSequentialGroup()
-                        .addComponent(threSlidA, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 13, Short.MAX_VALUE))))
-            .addGroup(filtersClassicALayout.createSequentialGroup()
                 .addGroup(filtersClassicALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(filtersClassicALayout.createSequentialGroup()
                         .addContainerGap()
@@ -1130,9 +1128,32 @@ public class Diana_SegmentGui extends JFrame {
                                     .addComponent(maxSizeA1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                             .addComponent(excludeEdgeZA1)))
                     .addGroup(filtersClassicALayout.createSequentialGroup()
-                        .addGap(65, 65, 65)
+                        .addGap(57, 57, 57)
                         .addComponent(segButA, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(0, 0, Short.MAX_VALUE))
+                .addGap(0, 2, Short.MAX_VALUE))
+            .addGroup(filtersClassicALayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(filtersClassicALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(filtersClassicALayout.createSequentialGroup()
+                        .addGroup(filtersClassicALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(filtersClassicALayout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(FilterButA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(threSlidA, javax.swing.GroupLayout.PREFERRED_SIZE, 198, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(filtersClassicALayout.createSequentialGroup()
+                        .addGroup(filtersClassicALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(FilterTypeA)
+                            .addGroup(filtersClassicALayout.createSequentialGroup()
+                                .addGap(4, 4, 4)
+                                .addComponent(thresholdLabA))
+                            .addComponent(filterBoxA, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(filtersClassicALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(filterRadA, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(FilterRadLabA)
+                            .addComponent(ThresValA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(38, 38, 38))))
         );
         filtersClassicALayout.setVerticalGroup(
             filtersClassicALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1147,11 +1168,11 @@ public class Diana_SegmentGui extends JFrame {
                     .addComponent(filterRadA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(FilterButA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(6, 6, 6)
-                .addGroup(filtersClassicALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(3, 3, 3)
+                .addGroup(filtersClassicALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(thresholdLabA)
                     .addComponent(ThresValA, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(0, 0, 0)
+                .addGap(3, 3, 3)
                 .addComponent(threSlidA, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(9, 9, 9)
                 .addGroup(filtersClassicALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -1165,7 +1186,7 @@ public class Diana_SegmentGui extends JFrame {
                 .addComponent(excludeEdgeXYA1, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(1, 1, 1)
                 .addComponent(excludeEdgeZA1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(segButA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -1474,10 +1495,11 @@ public class Diana_SegmentGui extends JFrame {
         filtersIterA1Layout.setHorizontalGroup(
             filtersIterA1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(filtersIterA1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(excludeEdgeXYA3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(filtersIterA1Layout.createSequentialGroup()
                 .addGroup(filtersIterA1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, filtersIterA1Layout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(questionItera1))
                     .addGroup(filtersIterA1Layout.createSequentialGroup()
                         .addGroup(filtersIterA1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(filtersIterA1Layout.createSequentialGroup()
@@ -1498,12 +1520,11 @@ public class Diana_SegmentGui extends JFrame {
                             .addGroup(filtersIterA1Layout.createSequentialGroup()
                                 .addGap(64, 64, 64)
                                 .addComponent(segIteraA, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addGap(12, 12, 12))
-            .addGroup(filtersIterA1Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(excludeEdgeXYA3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(0, 38, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, filtersIterA1Layout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(questionItera1)))
+                .addContainerGap())
         );
         filtersIterA1Layout.setVerticalGroup(
             filtersIterA1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1527,7 +1548,7 @@ public class Diana_SegmentGui extends JFrame {
                     .addComponent(valueThresIterA, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(excludeEdgeXYA3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 24, Short.MAX_VALUE)
                 .addComponent(segIteraA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(50, 50, 50))
         );
@@ -1544,9 +1565,7 @@ public class Diana_SegmentGui extends JFrame {
         );
         filtersPanelALayout.setVerticalGroup(
             filtersPanelALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(filtersPanelALayout.createSequentialGroup()
-                .addComponent(FilterTabbedPanelA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addComponent(FilterTabbedPanelA, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         goAnalyseButton1.setText("Go to analyse");
@@ -1622,15 +1641,15 @@ public class Diana_SegmentGui extends JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, 15, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(filtersPanelB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(filtersPanelA, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addComponent(filtersPanelB, javax.swing.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE)
+                    .addComponent(filtersPanelA, javax.swing.GroupLayout.DEFAULT_SIZE, 328, Short.MAX_VALUE))
+                .addGap(14, 14, 14)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(goAnalyseButton1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(about))
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addContainerGap(8, Short.MAX_VALUE))
         );
 
         pack();
@@ -1705,30 +1724,24 @@ public class Diana_SegmentGui extends JFrame {
         thr=threSlidA.getValue();
         minSizeA = Integer.parseInt((String) minSizeA1.getText());
         maxSizeA = Integer.parseInt((String) maxSizeA1.getText());
-        excludeXYA = excludeEdgeXYA1.isSelected(); 
+        excludeXYA = excludeEdgeXYA1.isSelected();
         exZ = excludeEdgeZA1.isSelected();
         min=minSizeA;max=maxSizeA;exXY=excludeXYA;//macro
-        
         segClassicBool=true;imgTitle=imA.getTitle();
-        
         if (Macro.getOptions()==null){
             updatePrefs();
         } else{
             macroInterpreter(Macro.getOptions());
         }
-        
         if(filterboolA==true){
-            
             objPopA = new segment().segClassic(imA2, thr, minSizeA, maxSizeA, exXY, exZ);
-            isA2 = segment.createImageObjects(imA, objPopA);
-            
             //show
-//            imA2.close();   //for updating the image
+            imA2.close();   //for updating the image
 //            imA2= segment.showImageObjects("labelled-A", isA2, objPopA, cali);
             imA2=segment.createImageObjects("labelled-A", imA, objPopA);
+            imA2.setSlice(imA2.getNSlices()/2);
             imA2.show();
             imA2.updateAndDraw();
-            
         }
         else{
             IJ.showMessage("Perform filter before segmentation!");
@@ -1769,7 +1782,6 @@ public class Diana_SegmentGui extends JFrame {
         if(handleFilter.equals("mean")){filterBoxAPref = 2;}
         if(handleFilter.equals("none")){filterBoxAPref = 3;}
         
-        
         imA2 = segment.filter(imA, handleFilter, radius);
         
         isA = imA.getImageStack();
@@ -1787,7 +1799,7 @@ public class Diana_SegmentGui extends JFrame {
         imA2.setCalibration(cali);
         imA2.show();
         imA2.setSlice(zmax);//updateSlice
-
+        imA2.setDisplayRange(0, highthrA);
         threSlidA.setMaximum(highthrA);
         threSlidA.setValue(imA2.getProcessor().getAutoThreshold());
         filterboolA=true;
@@ -1809,8 +1821,10 @@ public class Diana_SegmentGui extends JFrame {
         Manager.setImage2(imB);
         Manager.setImage1seg(imA2);
         Manager.setImage2seg(imB2);
-        Manager.setPopulation1(objPopA);
-        Manager.setPopulation2(objPopB);
+//        Manager.setPopulation1(objPopA);
+//        Manager.setPopulation2(objPopB);
+        Manager.setPopulation1(new Objects3DPopulation(ImageHandler.wrap(imA2)));
+        Manager.setPopulation2(new Objects3DPopulation(ImageHandler.wrap(imB2)));
         DiAna_Analyse diaAn = new DiAna_Analyse();
         diaAn.setVisible(true);
         dispose();
@@ -1847,7 +1861,7 @@ public class Diana_SegmentGui extends JFrame {
 
     private void questionItera1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_questionItera1MouseReleased
         try{
-            URI uri = URI.create("http://imagejdocu.tudor.lu/doku.php?id=plugin:analysis:distance_analysis_diana_2d_3d_:start");
+            URI uri = URI.create("https://imagej.net/plugins/distance-analysis");
             Desktop.getDesktop().browse(uri);
         }
         catch (IOException ex){
@@ -1894,7 +1908,7 @@ public class Diana_SegmentGui extends JFrame {
 
     private void questionItera2MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_questionItera2MouseReleased
         try{
-            URI uri = URI.create("http://imagejdocu.tudor.lu/doku.php?id=plugin:analysis:distance_analysis_diana_2d_3d_:start");
+            URI uri = URI.create("https://imagej.net/plugins/distance-analysis");
             Desktop.getDesktop().browse(uri);
         }
         catch (IOException ex){
@@ -1909,7 +1923,7 @@ public class Diana_SegmentGui extends JFrame {
 
     private void questionSpot2MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_questionSpot2MouseReleased
         try{
-            URI uri = URI.create("http://imagejdocu.tudor.lu/doku.php?id=plugin:analysis:distance_analysis_diana_2d_3d_:start");
+            URI uri = URI.create("https://imagej.net/plugins/distance-analysis");
             Desktop.getDesktop().browse(uri);
         }
         catch (IOException ex){
@@ -1941,7 +1955,9 @@ public class Diana_SegmentGui extends JFrame {
         //process
         ImageHandler iHB = ImageHandler.wrap(imB.duplicate());
         objPopB = new segment().segSpot(iHB, seed3DImageB, seedBPref, gaussRadBPref, sdBPref, minSizeB, maxSizeB, excludeXYB);
-
+        
+//        objPopB = new Objects3DPopulation(seg.getObjects());
+        
         //show
 //        isB2 = segment.createImageObjects(imB, objPopB);
 //        imB2= segment.showImageObjects("labelled-B", isB2, objPopB, cali);
@@ -1961,15 +1977,16 @@ public class Diana_SegmentGui extends JFrame {
             maxSizeB =  Integer.parseInt((String) maxSizeB1.getText());
             excludeXYB = excludeEdgeXYB1.isSelected(); 
             excludeZ = excludeEdgeZB1.isSelected();
-            imgTitle=imB.getTitle();min=minSizeB;max=maxSizeB;exXY=excludeXYB;//macro
+            imgTitle = imB.getTitle(); min=minSizeB; max=maxSizeB; exXY=excludeXYB;//macro
 
             objPopB = new segment().segClassic(imB2, thrB, minSizeB, maxSizeB, exXY, exZ);
 //            isB2 = segment.createImageObjects(imB, objPopB);
 
             //show
-//            imB2.close();   //for updating the image
+            imB2.close();   //for updating the image
 //            imB2= segment.showImageObjects("labelled-B", isB2, objPopB, cali);
-            imB2=segment.createImageObjects("labelled-B", imB, objPopB);
+            imB2 = segment.createImageObjects("labelled-B", imB, objPopB);
+            imB2.setSlice(imB2.getNSlices()/2);
             imB2.show();
             imB2.updateAndDraw();
             
@@ -2057,7 +2074,7 @@ public class Diana_SegmentGui extends JFrame {
 
     private void questionSpot1MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_questionSpot1MouseReleased
         try{
-            URI uri = URI.create("http://imagejdocu.tudor.lu/doku.php?id=plugin:analysis:distance_analysis_diana_2d_3d_:start");
+            URI uri = URI.create("https://imagej.net/plugins/distance-analysis");
             Desktop.getDesktop().browse(uri);
         }
         catch (IOException ex){
@@ -2088,6 +2105,8 @@ public class Diana_SegmentGui extends JFrame {
         }
       //process
       ImageHandler iHA = ImageHandler.wrap(imA.duplicate());
+      IJ.log("peaks:"+imgTitle+" "+radXYA+" "+radZA+" "+noiseAPref);
+      IJ.log("spots:"+seedAPref+" "+gaussRadAPref+" "+sdAPref+" "+minSizeA+" "+maxSizeA+" "+excludeXYA);
       objPopA = new segment().segSpot(iHA, seed3DImageA, seedAPref, gaussRadAPref, sdAPref, minSizeA, maxSizeA, excludeXYA);
       
       //show
@@ -2104,6 +2123,22 @@ public class Diana_SegmentGui extends JFrame {
             macroInterpreter(Macro.getOptions());
         }
     }//GEN-LAST:event_segSpotAActionPerformed
+
+    private void excludeEdgeXYA1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_excludeEdgeXYA1ActionPerformed
+        if (!excludeEdgeXYA1.isSelected())excludeEdgeZA1.setSelected(false);
+    }//GEN-LAST:event_excludeEdgeXYA1ActionPerformed
+
+    private void excludeEdgeZA1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_excludeEdgeZA1ActionPerformed
+        if (excludeEdgeZA1.isSelected())excludeEdgeXYA1.setSelected(true);
+    }//GEN-LAST:event_excludeEdgeZA1ActionPerformed
+
+    private void excludeEdgeXYB1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_excludeEdgeXYB1ActionPerformed
+        if (!excludeEdgeXYB1.isSelected())excludeEdgeZB1.setSelected(false);
+    }//GEN-LAST:event_excludeEdgeXYB1ActionPerformed
+
+    private void excludeEdgeZB1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_excludeEdgeZB1ActionPerformed
+        if (excludeEdgeZB1.isSelected())excludeEdgeXYB1.setSelected(true);
+    }//GEN-LAST:event_excludeEdgeZB1ActionPerformed
        
     
     

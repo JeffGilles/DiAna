@@ -12,12 +12,18 @@ import ij.measure.Calibration;
 import ij.process.ImageConverter;
 import mcib3d.geom.Object3D;
 import mcib3d.geom.Objects3DPopulation;
+import mcib3d.geom2.Objects3DIntPopulation;
+import mcib3d.geom2.Objects3DIntPopulationComputation;
 import mcib3d.image3d.ImageHandler;
 import mcib3d.image3d.ImageInt;
+import mcib3d.image3d.ImageLabeller;
 import mcib3d.image3d.IterativeThresholding.TrackThreshold;
-import mcib3d.image3d.Segment3DImage;
-import mcib3d.image3d.Segment3DSpots;
+import mcib3d.image3d.segment.Segment3DSpots;
 import mcib3d.image3d.processing.MaximaFinder;
+import mcib3d.image3d.segment.LocalThresholder;
+import mcib3d.image3d.segment.LocalThresholderGaussFit;
+import mcib3d.image3d.segment.SpotSegmenter;
+import mcib3d.image3d.segment.SpotSegmenterBlock;
 
 /**
  *
@@ -32,7 +38,7 @@ public class segment {
     int volumeMax=0;
     
     /** Object3D population **/
-    Objects3DPopulation pop=null;
+    Objects3DIntPopulation pop=null;
     
     
     /**
@@ -78,16 +84,33 @@ public class segment {
      * @param excluZ exclude objects on edgesZ
      * @return 
      */
-    public Objects3DPopulation segClassic(ImagePlus ima, int thrValue, int volmin, int volmax, boolean excluXY, boolean excluZ){
+    public Objects3DIntPopulation segClassic(ImagePlus ima, int thrValue, int volmin, int volmax, boolean excluXY, boolean excluZ){
+
+        ImageLabeller labeller = new ImageLabeller();
+        labeller.setMinSize(volmin);
+        labeller.setMaxsize(volmax);
         
-        Segment3DImage seg= new Segment3DImage(ima, thrValue, 65535);
-        seg.setMinSizeObject(volmin);
-        seg.setMaxSizeObject(volmax);
-        seg.segment();
-        Objects3DPopulation objpop = new Objects3DPopulation(seg.getLabelledObjectsImage3D());
+        ImageHandler imh = ImageHandler.wrap(ima);
+        ImageInt bin = imh.thresholdAboveInclusive(thrValue);
+        bin.setScale(imh);
+        
+        ImageHandler res;
+        labeller.getLabels(bin);
+        res = labeller.getLabels(bin);
+        res.setScale(imh);
+//        Objects3DPopulation objpop = new Objects3DPopulation(res);
+        Objects3DIntPopulation objpop = new Objects3DIntPopulation(res);
+        Objects3DIntPopulation pop1;
+        if(excluXY){
+            pop1 = new Objects3DIntPopulationComputation(objpop).getExcludeBorders(res, excluZ);
+        }
+        else{
+            pop1 = objpop;
+        }
         pop=objpop;
-        if(excluXY==true){excludeXY(ima.getWidth(), ima.getHeight());}
-        if(excluZ==true){excludeZ(ima.getNSlices());}
+        
+//        if(excluXY){excludeXY(res.getImagePlus().getWidth(), res.getImagePlus().getHeight());}
+//        if(excluZ){excludeZ(res.getImagePlus().getNSlices()-1);}
         return pop;
     }
     
@@ -103,21 +126,35 @@ public class segment {
      * @param excluXY Exclude objects on XY edges
      * @return 
      */
-    public Objects3DPopulation segSpot(ImageHandler iha, ImageHandler seeds, int seedThr, int gaussRad, float sdVal, int volmin, int volmax, boolean excluXY){
+    public Objects3DIntPopulation segSpot(ImageHandler iha, ImageHandler seeds, int seedThr, int gaussRad, float sdVal, int volmin, int volmax, boolean excluXY){
         Segment3DSpots seg = new Segment3DSpots(iha, seeds);
-        seg.setLocalThreshold(0);//0=auto
-        seg.setSeedsThreshold(seedThr); //500
-        seg.setMethodLocal(Segment3DSpots.LOCAL_GAUSS);
-        seg.setGaussPc(sdVal);//1.5
-        seg.setGaussMaxr(gaussRad);//10
-        seg.setWatershed(true);
+        seg.setSeedsThreshold(seedThr);
+        seg.setUseWatershed(true);
         seg.setVolumeMin(volmin);
         seg.setVolumeMax(volmax);
-        seg.setMethodSeg(Segment3DSpots.SEG_BLOCK);
+        // create thresholder
+        LocalThresholder localThresholder;
+        localThresholder = new LocalThresholderGaussFit(gaussRad,sdVal);
+
+        // create spot segmenter
+        SpotSegmenter spotSegmenter;
+        spotSegmenter = new SpotSegmenterBlock();
+        
+        // segment
+        seg.setLocalThresholder(localThresholder);
+        seg.setSpotSegmenter(spotSegmenter);
         seg.segmentAll();
-        Objects3DPopulation objpop = new Objects3DPopulation(seg.getObjects());
-        pop=objpop;
-        if(excluXY==true){excludeXY(iha.getImagePlus().getWidth(), iha.getImagePlus().getHeight());}
+        
+        ImageHandler labeled = seg.getLabeledImage();
+        
+        Objects3DIntPopulation objpop = new Objects3DIntPopulation(labeled);
+        
+        if(excluXY){
+            pop = new Objects3DIntPopulationComputation(objpop).getExcludeBorders(labeled, false);
+        }
+        else{
+            pop = objpop;
+        }
         return pop;
     }
     
@@ -131,16 +168,25 @@ public class segment {
      * @param excluXY Exclude objects which touching borders
      * @return 
      */
-    public Objects3DPopulation segIter(ImagePlus ima, int volmin, int volmax, int step, int thresVal, boolean excluXY){
+    public Objects3DIntPopulation segIter(ImagePlus ima, int volmin, int volmax, int step, int thresVal, boolean excluXY){
+        
         TrackThreshold trackThreshold = new TrackThreshold(volmin, volmax, step, 100, thresVal);
         trackThreshold.setCriteriaMethod(3);//3=MSER
         trackThreshold.setMethodThreshold(1);//1=STEP
         ImagePlus imp=trackThreshold.segment(ima, true);
         imp=ImageUtils.returnChannel1(imp);
-        ImageInt imaInt=ImageInt.wrap(imp.getImageStack());
-        Objects3DPopulation objpop= new Objects3DPopulation(imaInt);
+        
+        ImageHandler ih = ImageInt.wrap(imp.getImageStack());
+        Objects3DIntPopulation objpop= new Objects3DIntPopulation(ih);
+        
         pop=objpop;
-        if(excluXY==true){excludeXY(ima.getWidth(), ima.getHeight());}
+        
+        if(excluXY){
+            pop = new Objects3DIntPopulationComputation(objpop).getExcludeBorders(ih, false);
+        }
+        else{
+            pop = objpop;
+        }
         imp.close();
         return pop;
     }
@@ -161,60 +207,62 @@ public class segment {
     }
     
     
-    /**
-     * Exclude objects out of the bounds
-     * @param width image width=X boundary
-     * @param height image height=Y boundary
-     */
-    public void excludeXY(int width, int height){
-        for(int i=(pop.getNbObjects()-1); i>=0; i--){
-            Object3D ob = pop.getObject(i);
-            if((ob.getXmin()==0) || (ob.getXmax()==width-1) || (ob.getYmin()==0) || (ob.getYmax()==height-1)){
-                pop.removeObject(i);
-            }
-        }
-        incrementPop(pop);
-    }
+//    /**
+//     * Exclude objects out of the bounds
+//     * @param width image width=X boundary
+//     * @param height image height=Y boundary
+//     */
+//    
+//    public void excludeXY(int width, int height){
+//        for(int i=(pop.getNbObjects()-1); i>=0; i--){
+//            Object3D ob = pop.getObject(i);
+//            if((ob.getXmin()==0) || (ob.getXmax()==width-1) || (ob.getYmin()==0) || (ob.getYmax()==height-1)){
+//                pop.removeObject(i);
+//            }
+//        }
+//        incrementPop(pop);
+//    }
     
     /**
      * Exclude objects out of the bounds
      * @param slices image slices=Z boundary
      */
-    public void excludeZ(int slices){
-        for(int i=(pop.getNbObjects()-1); i>=0; i--){
-            Object3D ob = pop.getObject(i);
-            if(ob.getZmin()==1 || ob.getZmax()==slices){
-                pop.removeObject(i);
-            }
-        }
-        incrementPop(pop);
-    }
+//    public void excludeZ(int slices){
+//        for(int i=(pop.getNbObjects()-1); i>=0; i--){
+//            Object3D ob = pop.getObject(i);
+//            if(ob.getZmin()==1 || ob.getZmax()==slices){
+//                pop.removeObject(i);
+//            }
+//        }
+//        incrementPop(pop);
+//    }
     
-    /**
-     * Create an ImageStack from another and Objects3DPopulation
-     * @param ima imagePlus where dimensions are taken
-     * @param pop Objects3DPopulation to draw
-     * @return 
-     */
-    public static ImageStack createImageObjects (ImagePlus ima, Objects3DPopulation pop){
-        
-        if(ima.getBitDepth()==8) {
-              IJ.run(ima, "16-bit", "");
-        }
-        ImageStack stack = ima.createEmptyStack();
-          //Fill with value 0
-          for(int z=0; z<stack.getSize(); z++){
-                for(int y=0; y<stack.getHeight(); y++){
-                      for(int x=0; x<stack.getWidth(); x++){
-                            stack.setVoxel(x, y, z, 0);
-                      }
-                }
-          }
-          pop.draw(stack);
-          return stack;
-    }
     
-    public static ImagePlus createImageObjects (String title, ImagePlus ima, Objects3DPopulation pop){
+//    /**
+//     * Create an ImageStack from another and Objects3DPopulation
+//     * @param ima imagePlus where dimensions are taken
+//     * @param pop Objects3DPopulation to draw
+//     * @return 
+//     */
+//    public static ImageStack createImageObjects (ImagePlus ima, Objects3DIntPopulation pop){
+//        
+//        if(ima.getBitDepth()==8) {
+//              IJ.run(ima, "16-bit", "");
+//        }
+//        ImageStack stack = ima.createEmptyStack();
+//          //Fill with value 0
+//          for(int z=0; z<stack.getSize(); z++){
+//                for(int y=0; y<stack.getHeight(); y++){
+//                      for(int x=0; x<stack.getWidth(); x++){
+//                            stack.setVoxel(x, y, z, 0);
+//                      }
+//                }
+//          }
+//          pop.draw(stack);
+//          return stack;
+//    }
+    
+    public static ImagePlus createImageObjects (String title, ImagePlus ima, Objects3DIntPopulation pop){
         ImagePlus plus = ima.createImagePlus();
         plus.setImage(ima);
         //if(plus.getBitDepth()==8 && pop.getNbObjects()>254) { //generate pb when number of objects are closed in both channels
@@ -223,7 +271,7 @@ public class segment {
         //}
         ImageHandler hand=ImageHandler.wrap(plus);
         hand.erase();
-        pop.draw(hand);
+        pop.drawInImage(hand);
         plus.setTitle(title);
         IJ.log(""+pop.getNbObjects()+" objects found after segmentation and volume selection");
         plus.getProcessor().setMinAndMax(0, pop.getNbObjects());
@@ -241,7 +289,7 @@ public class segment {
      * @param cali Return the calibration
      * @return 
      */
-    public static ImagePlus showImageObjects(String title, ImageStack isa, Objects3DPopulation pop, Calibration cali){
+    public static ImagePlus showImageObjects(String title, ImageStack isa, Objects3DIntPopulation pop, Calibration cali){
         ImagePlus ima = new ImagePlus(title, isa);
         IJ.log(""+pop.getNbObjects()+" objects found after segmentation and volume selection");
         ima.getProcessor().setMinAndMax(0, pop.getNbObjects());
@@ -251,6 +299,7 @@ public class segment {
         return ima;
     }
     
+    //Check if used
     public static Objects3DPopulation incrementPop(Objects3DPopulation pop){
         int val = pop.getObject(pop.getNbObjects()-1).getValue();
         if(val!=pop.getNbObjects()){

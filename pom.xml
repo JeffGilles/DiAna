@@ -13,8 +13,8 @@
 	</parent>
 
 	<groupId>fr.upmc.ibps</groupId>
-	<artifactId>DiAnA</artifactId>
-	<version>1.49_SNAPSHOT</version>
+	<artifactId>DiAna_</artifactId>
+	<version>1.49-SNAPSHOT</version>
 
 	<name>DiAna</name>
 	<description>An ImageJ tool for object-based 3D co-localization and distance analysis.</description>
@@ -128,15 +128,16 @@
 			<groupId>net.imagej</groupId>
 			<artifactId>imagej-legacy</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.github.mcib3d</groupId>
-			<artifactId>mcib3d-core</artifactId>
-			<version>master-47119b6729-1</version>
-		</dependency>
 	 <dependency>
 	  <groupId>net.imagej</groupId>
 	  <artifactId>ij</artifactId>
 	  <version>1.53i</version>
+	  <type>jar</type>
+	 </dependency>
+	 <dependency>
+	  <groupId>org.framagit.mcib3d</groupId>
+	  <artifactId>mcib3d-core</artifactId>
+	  <version>4.0.1</version>
 	  <type>jar</type>
 	 </dependency>
 	</dependencies>
