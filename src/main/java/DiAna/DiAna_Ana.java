@@ -217,8 +217,8 @@ public class DiAna_Ana implements PlugIn {
     public static Objects3DPopulation popShuffle (Object3D mask, Objects3DPopulation pop1){
         Objects3DPopulation shufflePop = pop1;
         shufflePop.setMask(mask);
-        List<Object3D> shuObj=shufflePop.shuffle();
-        shufflePop.addObjects(shuObj);
+        List<Object3D> shuObj = shufflePop.shuffle();
+        shufflePop.addObjects((ArrayList<Object3D>) shuObj);
         return shufflePop;
     }
     

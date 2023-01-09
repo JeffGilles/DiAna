@@ -120,10 +120,10 @@ public class Manager {
             }
         }
         //adjust the length
-        String[] titles2=new String[a];
+        String[] titles2 = new String[a];
         for(int i=0; i<a;i++){
             titles2[i]=titles1[i];
-            if(nb==1)titles2[i]=WindowManager.getImage(ID1[i]).getTitle();
+            if(nb==1) titles2[i] = WindowManager.getImage(ID1[i]).getTitle();
         }
         return titles2;
     }

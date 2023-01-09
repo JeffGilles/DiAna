@@ -10,7 +10,7 @@ import ij.ImagePlus;
 import ij.ImageStack;
 import ij.measure.Calibration;
 import ij.process.ImageConverter;
-import mcib3d.geom.Object3D;
+//import mcib3d.geom.Object3D;
 import mcib3d.geom.Objects3DPopulation;
 import mcib3d.geom2.Objects3DIntPopulation;
 import mcib3d.geom2.Objects3DIntPopulationComputation;
@@ -225,7 +225,6 @@ public class segment {
     
     /**
      * Exclude objects out of the bounds
-     * @param slices image slices=Z boundary
      */
 //    public void excludeZ(int slices){
 //        for(int i=(pop.getNbObjects()-1); i>=0; i--){
@@ -282,7 +281,7 @@ public class segment {
     }
     
     /**
-     *  Show the labelled image with LUT and Calibration
+     * Show the labelled image with LUT and Calibration
      * @param title Name of the new image
      * @param isa ImageStack with objects
      * @param pop Objects3DPopulation to initialize setMinMax and indicate the number of objects

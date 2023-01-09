@@ -59,6 +59,7 @@ public class Measures {
         this.iHA = ihA;
         this.iHB = ihB;
         this.popA = popA;
+        //this.popA.setScale(ihA.sizeXY, ihA.sizeZ, ihA.getUnit());
         this.popB = popB;
         this.iHC = ImageHandler.newBlankImageHandler("coloc", ihA);
         touchA = touchingPop(popB, popA, iHA);
@@ -92,7 +93,7 @@ public class Measures {
         List<Object3D> touch = new ArrayList<> ();
         for(int i=0; i<objPop1.getNbObjects();i++){
             Object3D obA = objPop1.getObject(i);
-            List<Voxel3D> vox = obA.listVoxels(iHand2);// THOMAS new mcib3d v3.94
+            List<Voxel3D> vox = obA.listVoxels(iHand2);// new mcib3d v3.94
             for (Voxel3D voxel3D : vox) {
                 int val = (int) voxel3D.getValue();
                 Object3D object3D = pop.getObjectByValue(val);
@@ -114,21 +115,6 @@ public class Measures {
         popBi = new Objects3DIntPopulation(imgB);
     }
     
-    public void setTouchingPopInt (Objects3DIntPopulation objPop1, Objects3DIntPopulation objPop2){
-//        Objects3DIntPopulation popA = new Objects3DIntPopulation(imgA);
-//        Objects3DIntPopulation popB = new Objects3DIntPopulation(imgB);
-
-        touchAi = new Objects3DIntPopulation();
-        touchBi = new Objects3DIntPopulation();
-
-        //Instant instant0 = Instant.now();
-
-        MeasurePopulationColocalisation colocalisation = new MeasurePopulationColocalisation(objPop1,objPop2);
-
-        objPop1.getObjects3DInt().stream().filter(A -> colocalisation.getValuesObject1(A.getValue()).length>0).forEach(touchAi::addObject);
-        objPop2.getObjects3DInt().stream().filter(B -> colocalisation.getValuesObject2(B.getValue()).length>0).forEach(touchBi::addObject);
-    }
-    
     /**
      * Perform the coloc
      * @param colocOverlap Show purcentage of object-colocalization relatively with Volume of the objects
@@ -144,7 +130,6 @@ public class Measures {
         List<Object3D> aTouch = new ArrayList<> ();
         ResultsTable rtColoc = new ResultsTable();
         int a = 1;
-        
         for(int i=0; i<touchA.getNbObjects();i++){          //scan of the objects touchPopA
             Object3D obA = touchA.getObject(i);
             List<Voxel3D> vox = obA.listVoxels(iHB);

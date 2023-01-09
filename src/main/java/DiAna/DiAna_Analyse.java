@@ -170,7 +170,11 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
     public void macroBatchRunner(ImagePlus img1, ImagePlus img2, ImagePlus lab1, ImagePlus lab2, String maskTitle){
         //IJ.log("img1:"+img1.getTitle()+" img2:"+img2.getTitle()+" lab1:"+lab1.getTitle()+" lab2:"+lab2.getTitle());
         iHandA=ImageHandler.wrap(img1);iHandB=ImageHandler.wrap(img2);//raw
+        iHandA.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
+        iHandB.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
         iHA=ImageHandler.wrap(lab1); iHB=ImageHandler.wrap(lab2);//label
+        iHA.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
+        iHB.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
         ImageInt imInt1=ImageInt.wrap(lab1);
         Objects3DPopulation popA= new Objects3DPopulation(imInt1);//PB curr vs objpop
         ImageInt imInt2=ImageInt.wrap(lab2);
@@ -187,11 +191,11 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
             ColocHandler.show();
         }
         if(adjaBool){
-            meas.ComputeAdjacency(numClo, true, false, false, false, surfcontactboolAdj, distA);
+            meas.ComputeAdjacency(numClo, true, true, true, true, surfcontactboolAdj, distA);
         }
         if(measureBool){
-            ResultsTable resultsA = Measures.measureResult(iHandA, popA, "ObjA-", true, true, false, true,true, true, true, false, true);
-            ResultsTable resultsB = Measures.measureResult(iHandB, popB, "ObjB-", true, true, false, true,true, true, true, false, true);
+            ResultsTable resultsA = Measures.measureResult(iHandA, popA, "ObjA-", true, true, false, true, true, true, true, false, true);
+            ResultsTable resultsB = Measures.measureResult(iHandB, popB, "ObjB-", true, true, false, true, true, true, true, false, true);
             resultsA.show("ObjectsMeasuresResults-A");
             resultsB.show("ObjectsMeasuresResults-B");
         }
@@ -1395,7 +1399,11 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
         isA=imA.getImageStack();isA2=imA2.getImageStack();objPopA=Manager.pop1;
         isB=imB.getImageStack();isB2=imB2.getImageStack();objPopB=Manager.pop2;
         iHA = ImageHandler.wrap(isA);iHandA = ImageHandler.wrap(isA2);
+        iHA.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
+        iHandA.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
         iHB = ImageHandler.wrap(isB);iHandB = ImageHandler.wrap(isB2);
+        iHB.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
+        iHandB.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
         if(allTouch1.isSelected()){
             touchPopA = DiAna_Ana.touchingPop(objPopB, objPopA, imA2, true);
             DiAna_Ana.drawPop(touchPopA, iHandA);
@@ -2097,12 +2105,12 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
     
     @Override
     public void mouseClicked(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     public void mouseReleased(MouseEvent e) {
