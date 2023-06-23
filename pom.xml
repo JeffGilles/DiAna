@@ -6,7 +6,7 @@
 
     <groupId>fr.upmc.ibps</groupId>
     <artifactId>DiAna_</artifactId>
-    <version>1.50-SNAPSHOT</version>
+    <version>1.51-SNAPSHOT</version>
     
     <name>DiAna</name>
     <description>An ImageJ tool for object-based 3D co-localization and distance analysis.</description>
@@ -70,7 +70,7 @@
     </mailingLists>
     
     <properties>
-        <imagej.path>/Users/jeffgilles/Documents/ImageJ.app/</imagej.path>
+        <imagej.path>/Users/jeffgilles/Documents/Fiji.app/</imagej.path>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>

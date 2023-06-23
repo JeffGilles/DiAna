@@ -121,7 +121,12 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
         init=false;
         
         //Init combobox
+        if (Macro.getOptions() == null){
         title=Manager.testImageSizes(4, true);
+        }
+        else{
+            title=Manager.testImageSizes(4, false);
+        }
         imgA.setModel(new DefaultComboBoxModel(title));
         imgB.setModel(new DefaultComboBoxModel(title));
         imgA2.setModel(new DefaultComboBoxModel(title));

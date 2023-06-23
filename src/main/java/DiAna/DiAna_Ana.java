@@ -20,7 +20,6 @@
 
 package DiAna;
 
-import ij.IJ;
 import ij.ImagePlus;
 import ij.ImageStack;
 import ij.Macro;
@@ -252,7 +251,7 @@ public class DiAna_Ana implements PlugIn {
         mean=sum/arrayL.size();
         return mean;
     }
-        
+    
     
      @Override
     public void run(String arg) {
@@ -261,14 +260,14 @@ public class DiAna_Ana implements PlugIn {
        if (Macro.getOptions()==null){
            diaAn.setVisible(true);
         }else{
-           
-           diaAn.imA=WindowManager.getImage(diaAn.imgASelect);
-           diaAn.imB=WindowManager.getImage(diaAn.imgBSelect);
-           diaAn.imA2=WindowManager.getImage(diaAn.imgA2Select);
-           diaAn.imB2=WindowManager.getImage(diaAn.imgB2Select);
-           diaAn.titleMask=null;
+//           diaAn.imA=WindowManager.getImage(diaAn.imgASelect);
+//           diaAn.imB=WindowManager.getImage(diaAn.imgBSelect);
+//           diaAn.imA2=WindowManager.getImage(diaAn.imgA2Select);
+//           diaAn.imB2=WindowManager.getImage(diaAn.imgB2Select);
+//           diaAn.titleMask=null;
            diaAn.macroInterpreter(Macro.getOptions());
         }
     }
+    
     
 }
