@@ -23,7 +23,9 @@ package DiAna;
 import ij.IJ;
 import ij.ImagePlus;
 import ij.WindowManager;
+import ij.measure.Calibration;
 import ij.plugin.ChannelSplitter;
+import java.util.Arrays;
 import mcib3d.geom.Objects3DPopulation;
 import mcib3d.geom2.Objects3DIntPopulation;
 
@@ -75,6 +77,43 @@ public class Manager {
     }
     
     /**
+     * compare dimensions and calibration
+     * @param ima1
+     * @param ima2
+     * @param ima3
+     * @param ima4
+     * @return 0 if everything is ok, 1 there is 24/32bit, 2 pb dimensions, 3 pb calibration
+     */
+    public static int compareDimensions(ImagePlus ima1, ImagePlus ima2, ImagePlus ima3, ImagePlus ima4){
+        ImagePlus[] ima = {ima1, ima2, ima3, ima4};
+        int result = 0;
+        //RGB and 32 bit image
+        for (int i = 0 ; i < 4; i++){
+            if (ima[i].getBitDepth() == 24 || ima[i].getBitDepth()== 32){
+                result = 1;
+            }
+        }
+        //dimensions (Width, height, depth
+        for (int i = 1 ; i < 4; i++){
+            if(!Arrays.equals(ima[0].getDimensions(), ima[i].getDimensions())) {
+                //IJ.log(""+ima1.getTitle()+" "+ima[i].getTitle());
+                result = 2;
+            }
+        }
+        //calibration (Width, height, depth
+//        Calibration c1 = ima1.getCalibration();
+        for (int i = 1 ; i < 4; i++){
+//            Calibration c2 = ima[i].getCalibration();
+            if(!ima1.getCalibration().equals(ima[i].getCalibration())) {
+                //IJ.log(""+ima1.getTitle()+" "+ima[i].getTitle());
+                result = 3;
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
      * Test sizes of opened images & list their title
      * @param minOpenedImages 
      * @param splitimage
@@ -106,7 +145,8 @@ public class Manager {
                 for(int j=1; j<nb; j++){
                     if(i<j){
                         ImagePlus testedImg=WindowManager.getImage(ID1[j]);
-                        if((currImg.getWidth()==testedImg.getWidth()) && (currImg.getHeight()==testedImg.getHeight()) && (currImg.getNSlices()==testedImg.getNSlices()) && (currImg.getNDimensions()==testedImg.getNDimensions())){
+//                        if((currImg.getWidth()==testedImg.getWidth()) && (currImg.getHeight()==testedImg.getHeight()) && (currImg.getNSlices()==testedImg.getNSlices()) && (currImg.getNDimensions()==testedImg.getNDimensions())){
+                        if(Arrays.equals(currImg.getDimensions(), testedImg.getDimensions())) {   
                             if(i==0){titles1[a-1]=currImg.getTitle();}
                             if(titles1[a]==null){
                                 if(!currImg.getTitle().equals(titles1[a-1])){titles1[a]=currImg.getTitle();a++;}//a different set of images has been fund & has been added
@@ -147,7 +187,7 @@ public class Manager {
     /**
      * Test with a random position if Image is labelled with neighbours values
      * @param plus image to test
-     * @return 
+     * @return false if test is bad, true if good
      */
     public static boolean testLabelled(ImagePlus plus){
         boolean test=true;

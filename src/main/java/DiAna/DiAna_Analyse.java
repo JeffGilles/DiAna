@@ -122,10 +122,10 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
         
         //Init combobox
         if (Macro.getOptions() == null){
-        title=Manager.testImageSizes(4, true);
+        title=Manager.testImageSizes(2, true);
         }
         else{
-            title=Manager.testImageSizes(4, false);
+            title=Manager.testImageSizes(2, false);
         }
         imgA.setModel(new DefaultComboBoxModel(title));
         imgB.setModel(new DefaultComboBoxModel(title));
@@ -175,6 +175,7 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
     public void macroBatchRunner(ImagePlus img1, ImagePlus img2, ImagePlus lab1, ImagePlus lab2, String maskTitle){
         //IJ.log("img1:"+img1.getTitle()+" img2:"+img2.getTitle()+" lab1:"+lab1.getTitle()+" lab2:"+lab2.getTitle());
         iHandA=ImageHandler.wrap(img1);iHandB=ImageHandler.wrap(img2);//raw
+        cali = img1.getCalibration();
         iHandA.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
         iHandB.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
         iHA=ImageHandler.wrap(lab1); iHB=ImageHandler.wrap(lab2);//label
@@ -765,11 +766,11 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
         allTouch1.setBackground(new java.awt.Color(230, 230, 230));
         allTouch1.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
         allTouch1.setText("Select only all objects touching");
-        allTouch1.setToolTipText("Select only the objects which are touching each other between the two images");
+        allTouch1.setToolTipText("<html>Select only the objects which are touching each other between the two images<br/>Be careful! Changing labelled images after selecting this option and initialize <br/>can damage your object populations</html>");
 
         initial.setFont(new java.awt.Font("Ubuntu", 0, 12)); // NOI18N
         initial.setText("Initialize");
-        initial.setToolTipText("<html>Initialize the images for detecting objects <br/>Re-initialize the object population if you don't want \"only all objects touching\"</html>\n");
+        initial.setToolTipText("<html>Initialize the images for detecting objects <br/>Re-initialize the object population if you don't want \"only all objects touching\"<br/>\nBe careful, you can damage your object populations if you change your labelled images after this option</html>\n");
         initial.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 initialActionPerformed(evt);
@@ -1378,77 +1379,109 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
     }// </editor-fold>//GEN-END:initComponents
 
     private void imgAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_imgAActionPerformed
-        Manager.testImageSizes(1, false);
+//        Manager.testImageSizes(1, false);
         imgASelect=(String)  imgA.getSelectedItem();
-        if (title.length > 0){
-            WindowManager.getFrame(imgASelect).toFront();
-            imA = WindowManager.getImage(imgASelect);
-            int slice = WindowManager.getImage(imgASelect).getNSlices();
-            WindowManager.getImage(imgASelect).setSlice(slice/2);
-            cali = imA.getCalibration();
-        }
+//        if (title.length > 0){
+//            WindowManager.getFrame(imgASelect).toFront();
+//            imA = WindowManager.getImage(imgASelect);
+//            int slice = WindowManager.getImage(imgASelect).getNSlices();
+//            WindowManager.getImage(imgASelect).setSlice(slice/2);
+//            cali = imA.getCalibration();
+//        }
         imA = WindowManager.getImage(imgASelect);
-        imgA.updateUI();
+//        imgA.updateUI();
 
     }//GEN-LAST:event_imgAActionPerformed
 
     private void imgBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_imgBActionPerformed
-        Manager.testImageSizes(1, false);
-        imgBSelect=(String) imgB.getSelectedItem();
+        //Manager.testImageSizes(1, false);
+        imgBSelect = (String) imgB.getSelectedItem();
         imB = WindowManager.getImage(imgBSelect);
         
     }//GEN-LAST:event_imgBActionPerformed
 
     private void initialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_initialActionPerformed
-        
-        isA=imA.getImageStack();isA2=imA2.getImageStack();objPopA=Manager.pop1;
-        isB=imB.getImageStack();isB2=imB2.getImageStack();objPopB=Manager.pop2;
-        iHA = ImageHandler.wrap(isA);iHandA = ImageHandler.wrap(isA2);
-        iHA.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
-        iHandA.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
-        iHB = ImageHandler.wrap(isB);iHandB = ImageHandler.wrap(isB2);
-        iHB.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
-        iHandB.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
-        if(allTouch1.isSelected()){
-            touchPopA = DiAna_Ana.touchingPop(objPopB, objPopA, imA2, true);
-            DiAna_Ana.drawPop(touchPopA, iHandA);
-            imA2.updateAndDraw();
-            imA2.show();
-            isA2 = imA2.getImageStack();
-            touchPopB = DiAna_Ana.touchingPop(objPopA, objPopB, imB2, true);
-            DiAna_Ana.drawPop(touchPopB, iHandB);
-            imB2.updateAndDraw();
-            imB2.show();
-            isB2 = imB2.getImageStack();
-            initial.setText("Initialized");
-        }
-        else{
-            DiAna_Ana.drawPop(objPopA, iHandA);
-            imA2.setDisplayRange(0, objPopA.getNbObjects());
-            imA2.updateAndDraw();
-            imA2.show();
-            DiAna_Ana.drawPop(objPopB, iHandB);
-            imB2.setDisplayRange(0, objPopB.getNbObjects());
-            imB2.updateAndDraw();
-            imB2.show();
-            initial.setText("Initialized");
-            if(init==true){ //reset the "all object touching"
-//                DiAna_Ana.drawPop(objPopA, iHandA);
-//                imA2.updateAndDraw();
-//                imA2.show();
-//                DiAna_Ana.drawPop(objPopB, iHandB);
-//                imB2.updateAndDraw();
-//                imB2.show();
-                initial.setText("Re-initialized");
-             }
-        }
-        
-        currPopA = new Objects3DPopulation (ImageInt.wrap(imA2));
-        //shuffPopA = new Objects3DPopulation (ImageInt.wrap(imA2));//this pop changes
-        currPopB = new Objects3DPopulation (ImageInt.wrap(imB2));
-        
-        init=true;
 
+        if(imA == null || imB == null || imA2 ==null || imB2 == null || !imA.getTitle().equals(imgASelect) || !(imB.getTitle().equals(imgBSelect)) || !(imA2.getTitle().equals(imgA2Select)) || !(imB2.getTitle().equals(imgB2Select))){
+            imA = WindowManager.getImage((String) imgA.getSelectedItem());
+            imB = WindowManager.getImage((String) imgB.getSelectedItem());
+            imA2 = WindowManager.getImage((String) imgA2.getSelectedItem());
+            imB2 = WindowManager.getImage((String) imgB2.getSelectedItem());
+            cali = imA.getCalibration();
+            ImageHandler hA2 = ImageHandler.wrap(imA2);
+            ImageHandler hB2 = ImageHandler.wrap(imB2);
+            objPopA = new Objects3DPopulation(hA2);
+            Manager.setPopulation1(objPopA);
+            objPopB = new Objects3DPopulation(hB2);
+            Manager.setPopulation2(objPopB);
+        }
+        
+        if(!Manager.testLabelled(imA2) || !Manager.testLabelled(imB2) ){
+            IJ.showMessage("Error", "Please check your labelled images");
+            initial.setText("Initialize");
+            init = false;
+        }
+        else{ //lab good
+            cali = imA.getCalibration();
+            int test = Manager.compareDimensions(imA, imA2, imB, imB2);
+            if(test != 0){
+                if(test == 1){
+                    IJ.showMessage("Error", "Check your images, RGB and 32bit images not allowed");
+                }
+                if(test == 2){
+                    IJ.showMessage("Error", "Check your images, the dimensions are not similar");
+                }
+                if(test == 3){
+                    IJ.showMessage("Error", "Check your images, the calibrations are not similar");
+                }
+                initial.setText("Initialize");
+                init = false;
+            }
+            else{//good
+                isA=imA.getImageStack();isA2=imA2.getImageStack();objPopA=Manager.pop1;
+                isB=imB.getImageStack();isB2=imB2.getImageStack();objPopB=Manager.pop2;
+                iHA = ImageHandler.wrap(isA);iHandA = ImageHandler.wrap(isA2);
+                iHA.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
+                iHandA.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
+                iHB = ImageHandler.wrap(isB);iHandB = ImageHandler.wrap(isB2);
+                iHB.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
+                iHandB.setScale(cali.pixelWidth, cali.pixelDepth, cali.getUnit());
+                if(allTouch1.isSelected()){
+                    //update images
+                    touchPopA = DiAna_Ana.touchingPop(objPopB, objPopA, imA2, true);
+                    DiAna_Ana.drawPop(touchPopA, iHandA);
+                    imA2.updateAndDraw();
+                    WindowManager.getFrame(imgA2Select).toFront();
+                    isA2 = imA2.getImageStack();
+                    touchPopB = DiAna_Ana.touchingPop(objPopA, objPopB, imB2, true);
+                    DiAna_Ana.drawPop(touchPopB, iHandB);
+                    imB2.updateAndDraw();
+                    WindowManager.getFrame(imgB2Select).toFront();
+                    isB2 = imB2.getImageStack();
+                    initial.setText("Initialized");
+                }
+                else{
+                    DiAna_Ana.drawPop(objPopA, iHandA);
+                    imA2.setDisplayRange(0, objPopA.getNbObjects());
+                    imA2.updateAndDraw();
+                    WindowManager.getFrame(imgA2Select).toFront();
+                    DiAna_Ana.drawPop(objPopB, iHandB);
+                    imB2.setDisplayRange(0, objPopB.getNbObjects());
+                    imB2.updateAndDraw();
+                    WindowManager.getFrame(imgB2Select).toFront();
+                    initial.setText("Initialized");
+                    if(init==true){ //reset the "all object touching"
+                        initial.setText("Re-initialized");
+                    }
+                }
+                currPopA = new Objects3DPopulation (ImageInt.wrap(imA2));
+                currPopB = new Objects3DPopulation (ImageInt.wrap(imB2));
+                IJ.log("nbPopA: "+currPopA.getNbObjects()+"  nbPopB: "+currPopB.getNbObjects());
+
+                init = true;
+            }
+        }
+        
     }//GEN-LAST:event_initialActionPerformed
 
     private void jListAMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jListAMouseReleased
@@ -1620,18 +1653,18 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
             objPopA = new Objects3DPopulation(imInt);
             Manager.setPopulation1(objPopA);
         }
-        else{
-            if(Macro.getOptions()==null){
-                IJ.showMessage("Be carefull", "Your selected image in Labelled A is not valid");
-            }
-
-        }
+//        else{
+//            if(Macro.getOptions()==null){
+//                IJ.showMessage("Be carefull", "Your selected image in Labelled A is not valid");
+//            }
+//
+//        }
         
     }//GEN-LAST:event_imgA2ActionPerformed
 
     private void imgB2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_imgB2ActionPerformed
         imgB2Select = (String) imgB2.getSelectedItem();
-        if(Manager.testLabelled(WindowManager.getImage(imgA2Select))==true){
+        if(Manager.testLabelled(WindowManager.getImage(imgB2Select))==true){
             WindowManager.getFrame(imgB2Select).toFront();
             imB2=WindowManager.getImage(imgB2Select);
             int slice = imB2.getNSlices();
@@ -1641,11 +1674,11 @@ public class DiAna_Analyse extends JFrame implements MouseListener {
             objPopB = new Objects3DPopulation(imInt);
             Manager.setPopulation2(objPopB);
         }
-        else{
-            if(Macro.getOptions()==null){
-                IJ.showMessage("Be carefull", "Your selected image in Labelled B is not valid");
-            }
-        }
+//        else{
+//            if(Macro.getOptions()==null){
+//                IJ.showMessage("Be carefull", "Your selected image in Labelled B is not valid");
+//            }
+//        }
     }//GEN-LAST:event_imgB2ActionPerformed
 
     private void mergeObjectsAActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_mergeObjectsAActionPerformed

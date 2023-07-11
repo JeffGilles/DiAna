@@ -6,7 +6,7 @@
 
     <groupId>fr.upmc.ibps</groupId>
     <artifactId>DiAna_</artifactId>
-    <version>1.51-SNAPSHOT</version>
+    <version>1.52-SNAPSHOT</version>
     
     <name>DiAna</name>
     <description>An ImageJ tool for object-based 3D co-localization and distance analysis.</description>

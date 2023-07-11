@@ -694,7 +694,7 @@
               <Font name="Ubuntu" size="12" style="0"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Select only all objects touching"/>
-            <Property name="toolTipText" type="java.lang.String" value="Select only the objects which are touching each other between the two images"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Select only the objects which are touching each other between the two images&lt;br/&gt;Be careful! Changing labelled images after selecting this option and initialize &lt;br/&gt;can damage your object populations&lt;/html&gt;"/>
           </Properties>
           <AuxValues>
             <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JCheckBox(&quot;All objects touching&quot;, allTouch1bool)"/>
@@ -706,7 +706,7 @@
               <Font name="Ubuntu" size="12" style="0"/>
             </Property>
             <Property name="text" type="java.lang.String" value="Initialize"/>
-            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Initialize the images for detecting objects &lt;br/&gt;Re-initialize the object population if you don&apos;t want &quot;only all objects touching&quot;&lt;/html&gt;&#xa;"/>
+            <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;Initialize the images for detecting objects &lt;br/&gt;Re-initialize the object population if you don&apos;t want &quot;only all objects touching&quot;&lt;br/&gt;&#xa;Be careful, you can damage your object populations if you change your labelled images after this option&lt;/html&gt;&#xa;"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="initialActionPerformed"/>
