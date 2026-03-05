@@ -89,7 +89,7 @@ public class Manager {
         int result = 0;
         //RGB and 32 bit image
         for (int i = 0 ; i < 4; i++){
-            if (ima[i].getBitDepth() == 24 || ima[i].getBitDepth()== 32){
+            if (ima[i].getBitDepth() == 24 ){//|| ima[i].getBitDepth()== 32){
                 result = 1;
             }
         }
@@ -120,6 +120,7 @@ public class Manager {
      * @return 
      */
     public static String[] testImageSizes(int minOpenedImages, boolean splitimage){
+
         if(splitimage==true){
             SplitOpenedImages();
         }
@@ -130,7 +131,7 @@ public class Manager {
         int a=0;
         for (int i=0;i<nb;i++){
             ImagePlus currImg=WindowManager.getImage(IDList[i]);
-            if (currImg.getBitDepth()!=24 && currImg.getBitDepth()!=32){
+            if (currImg.getBitDepth()!=24 ){//&& currImg.getBitDepth()!=32){
                 ID1[a]=IDList[i];
                 a++;
             }
