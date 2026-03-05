@@ -126,9 +126,9 @@ public class segment {
      * @param excluXY Exclude objects on XY edges
      * @return 
      */
-    public Objects3DIntPopulation segSpot(ImageHandler iha, ImageHandler seeds, int seedThr, int gaussRad, float sdVal, int volmin, int volmax, boolean excluXY){
+    public Objects3DIntPopulation segSpot(ImageHandler iha, ImageHandler seeds, int seedThr, int gaussRad, float sdVal, int volmin, int volmax, boolean excluXY){        
         Segment3DSpots seg = new Segment3DSpots(iha, seeds);
-        seg.setSeedsThreshold(seedThr);
+        seg.setSeedsThreshold((float)seedThr);
         seg.setUseWatershed(true);
         seg.setVolumeMin(volmin);
         seg.setVolumeMax(volmax);
