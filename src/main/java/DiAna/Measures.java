@@ -274,6 +274,7 @@ public class Measures {
     /**
      * Compute the distances between objects
      * @param kClosest Number of objects in B closed to the object in A to analyse
+     * @param closestMethod method to compute Closest objects (true=Centers, false=Borders)
      * @param distCC Show distance Center-Center
      * @param distEE Show distance Edge-Edge
      * @param distCE Show distance Center-Edge
@@ -281,7 +282,7 @@ public class Measures {
      * @param surf Show surface in contact between the two objects
      * @param distSurf_max Limite of the distance in contact
      */
-    public void  ComputeAdjacency(int kClosest, boolean distCC, boolean distEE, boolean distCE, boolean distEC, boolean surf, double distSurf_max){
+    public void  ComputeAdjacency(int kClosest, boolean closestMethod, boolean distCC, boolean distEE, boolean distCE, boolean distEC, boolean surf, double distSurf_max){
         
         ResultsTable rtAdjacA = new ResultsTable();
         if(kClosest>popB.getNbObjects()){
@@ -289,7 +290,12 @@ public class Measures {
         }
         for(int i=0; i<popA.getNbObjects();i++){
             Object3D obA = popA.getObject(i);
-            Object3D obB = popB.closestCenter(obA, 0.010);
+            Object3D obB;
+            if(closestMethod == true){
+                obB = popB.closestCenter(obA, 0.005);
+            } else{
+                obB = popB.closestBorder(obA, 0.005);
+            }
             
             if(kClosest==1){
                 rtAdjacA.incrementCounter();
@@ -304,9 +310,16 @@ public class Measures {
                 }
             }
             if(kClosest>1){
+                ArrayList<Object3D> excluded = new ArrayList<>();
                 for(int j=1; j<=kClosest; j++){
                     rtAdjacA.incrementCounter();
-                    Object3D obBk=popB.kClosestCenter(obA, j, false);
+                    Object3D obBk;
+                    if(closestMethod == true){
+                        obBk = popB.kClosestCenter(obA, j, false);
+                    } else{
+                        obBk = popB.closestBorder(obA, excluded);
+                        excluded.add(obBk);
+                    }
                     rtAdjacA.addLabel("ObjA"+((int)obA.getPixMeanValue(iHA))+"_ObjB"+((int)obBk.getPixMeanValue(iHB)));
                     if(distCC==true){rtAdjacA.addValue("Dist CenterA-CenterB", obA.distCenterUnit(obBk));}
                     if(distEE==true){rtAdjacA.addValue("Dist min EdgeA-EdgeB", obA.distBorderUnit(obBk));}
